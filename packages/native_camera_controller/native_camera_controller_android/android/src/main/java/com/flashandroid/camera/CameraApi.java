@@ -161,7 +161,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.dispose" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.dispose" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -182,7 +182,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.initialize" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.initialize" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -212,7 +212,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.takePicture" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.takePicture" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -239,7 +239,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setZoomLevel" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setZoomLevel" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -262,7 +262,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getZoomLevel" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getZoomLevel" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -283,7 +283,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setFlashStatus" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setFlashStatus" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -306,7 +306,7 @@ public class CameraApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getFlashStatus" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getFlashStatus" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -347,7 +347,7 @@ public class CameraApi {
       return PigeonCodec.INSTANCE;
     }
     public void onImageAvailable(@NonNull byte[] imageArg, @NonNull VoidResult result) {
-      final String channelName = "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onImageAvailable" + messageChannelSuffix;
+      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());
@@ -367,7 +367,7 @@ public class CameraApi {
           });
     }
     public void onQrCodeAvailable(@NonNull String qrCodeArg, @NonNull VoidResult result) {
-      final String channelName = "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable" + messageChannelSuffix;
+      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());

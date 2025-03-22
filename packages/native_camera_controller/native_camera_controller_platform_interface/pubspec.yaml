@@ -1,5 +1,5 @@
-name: mobile_camera_controller_platform_interface
-description: A common platform interface for the mobile_camera_controller plugin.
+name: native_camera_controller_platform_interface
+description: A common platform interface for the native_camera_controller plugin.
 version: 0.1.0+1
 publish_to: none
 

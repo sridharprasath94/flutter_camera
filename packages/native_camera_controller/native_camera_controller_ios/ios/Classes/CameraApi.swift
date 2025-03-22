@@ -133,7 +133,7 @@ class CameraApiSetup {
   /// Sets up an instance of `CameraApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: CameraApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
-    let disposeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.dispose\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let disposeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.dispose\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       disposeChannel.setMessageHandler { _, reply in
         do {
@@ -146,7 +146,7 @@ class CameraApiSetup {
     } else {
       disposeChannel.setMessageHandler(nil)
     }
-    let initializeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.initialize\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let initializeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.initialize\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       initializeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -164,7 +164,7 @@ class CameraApiSetup {
     } else {
       initializeChannel.setMessageHandler(nil)
     }
-    let takePictureChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.takePicture\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let takePictureChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.takePicture\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       takePictureChannel.setMessageHandler { _, reply in
         api.takePicture { result in
@@ -179,7 +179,7 @@ class CameraApiSetup {
     } else {
       takePictureChannel.setMessageHandler(nil)
     }
-    let setZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let setZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setZoomLevelChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -194,7 +194,7 @@ class CameraApiSetup {
     } else {
       setZoomLevelChannel.setMessageHandler(nil)
     }
-    let getZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getZoomLevelChannel.setMessageHandler { _, reply in
         do {
@@ -207,7 +207,7 @@ class CameraApiSetup {
     } else {
       getZoomLevelChannel.setMessageHandler(nil)
     }
-    let setFlashStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setFlashStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let setFlashStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setFlashStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setFlashStatusChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -222,7 +222,7 @@ class CameraApiSetup {
     } else {
       setFlashStatusChannel.setMessageHandler(nil)
     }
-    let getFlashStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getFlashStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getFlashStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getFlashStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getFlashStatusChannel.setMessageHandler { _, reply in
         do {
@@ -253,7 +253,7 @@ class CameraImageListener: CameraImageListenerProtocol {
     return CameraApiPigeonCodec.shared
   }
   func onImageAvailable(image imageArg: FlutterStandardTypedData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onImageAvailable\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([imageArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
@@ -271,7 +271,7 @@ class CameraImageListener: CameraImageListenerProtocol {
     }
   }
   func onQrCodeAvailable(qrCode qrCodeArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([qrCodeArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {

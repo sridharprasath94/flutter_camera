@@ -74,7 +74,7 @@ class CameraApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<void> dispose() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.dispose$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.dispose$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -96,7 +96,7 @@ class CameraApi {
   }
 
   Future<void> initialize(FlashState flashState, double flashTorchLevel) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.initialize$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.initialize$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -118,7 +118,7 @@ class CameraApi {
   }
 
   Future<Uint8List> takePicture() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.takePicture$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.takePicture$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -145,7 +145,7 @@ class CameraApi {
   }
 
   Future<void> setZoomLevel({required double zoomLevel}) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setZoomLevel$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setZoomLevel$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -167,7 +167,7 @@ class CameraApi {
   }
 
   Future<double> getZoomLevel() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getZoomLevel$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getZoomLevel$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -194,7 +194,7 @@ class CameraApi {
   }
 
   Future<void> setFlashStatus({required bool isActive}) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.setFlashStatus$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setFlashStatus$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -216,7 +216,7 @@ class CameraApi {
   }
 
   Future<bool> getFlashStatus() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraApi.getFlashStatus$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getFlashStatus$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -254,18 +254,18 @@ abstract class CameraImageListener {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onImageAvailable$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onImageAvailable was null.');
+          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final Uint8List? arg_image = (args[0] as Uint8List?);
           assert(arg_image != null,
-              'Argument for dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onImageAvailable was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable was null, expected non-null Uint8List.');
           try {
             api.onImageAvailable(arg_image!);
             return wrapResponse(empty: true);
@@ -279,18 +279,18 @@ abstract class CameraImageListener {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null.');
+          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_qrCode = (args[0] as String?);
           assert(arg_qrCode != null,
-              'Argument for dev.flutter.pigeon.mobile_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null, expected non-null String.');
           try {
             api.onQrCodeAvailable(arg_qrCode!);
             return wrapResponse(empty: true);
