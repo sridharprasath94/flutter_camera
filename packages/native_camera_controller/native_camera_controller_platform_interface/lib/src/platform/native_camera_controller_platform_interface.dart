@@ -8,13 +8,13 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 ///  must implement.
 ///
 /// Platform implementations should extend this class
-/// rather than implement it as `MobileCameraController`.
+/// rather than implement it as `NativeCameraController`.
 /// Extending this class (using `extends`) ensures that the subclass will get
 /// the default implementation, while platform implementations that `implements`
 ///  this interface will be broken by newly
 ///  added [NativeCameraControllerPlatform] methods.
 abstract class NativeCameraControllerPlatform extends PlatformInterface {
-  /// Constructs a MobileCameraControllerPlatform.
+  /// Constructs a NativeCameraControllerPlatform.
   NativeCameraControllerPlatform() : super(token: _token);
 
   static final Object _token = Object();
@@ -36,6 +36,10 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
   }
 
   final _cameraApi = CameraApi();
+
+
+  /// Return the current platform version.
+  Future<String?> getPlatformVersion();
 
   /// Returns the platform specific widget
   Widget getCameraView();

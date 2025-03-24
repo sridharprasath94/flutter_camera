@@ -9,4 +9,9 @@ class MethodChannelNativeCameraController
   Widget getCameraView() {
     throw UnimplementedError();
   }
+
+  @override
+  Future<String?> getPlatformVersion() {
+    throw UnimplementedError();
+  }
 }
