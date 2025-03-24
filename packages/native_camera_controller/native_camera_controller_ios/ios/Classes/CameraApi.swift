@@ -119,7 +119,7 @@ class CameraApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol CameraApi {
   func dispose() throws
-  func initialize(flashState: FlashState, flashTorchLevel: Double) throws
+  func initialize(flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, Error>) -> Void)
   func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func setZoomLevel(zoomLevel: Double) throws
   func getCurrentZoomLevel() throws -> Double
@@ -155,11 +155,13 @@ class CameraApiSetup {
         let args = message as! [Any?]
         let flashStateArg = args[0] as! FlashState
         let flashTorchLevelArg = args[1] as! Double
-        do {
-          try api.initialize(flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg)
-          reply(wrapResult(nil))
-        } catch {
-          reply(wrapError(error))
+        api.initialize(flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
         }
       }
     } else {

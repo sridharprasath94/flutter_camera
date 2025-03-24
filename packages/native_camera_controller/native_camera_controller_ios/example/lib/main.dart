@@ -96,7 +96,7 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
   }
 
   Future<void> _initializeCamera() async {
-    _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
+    await _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
     bool flashStatus = await _nativeCameraControllerIosPlugin.getFlashStatus();
     double minZoom =
         await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();

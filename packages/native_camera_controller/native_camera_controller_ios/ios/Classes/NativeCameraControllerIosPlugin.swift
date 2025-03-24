@@ -37,17 +37,29 @@ extension UIView {
 
 
 class CameraApiImplementation: CameraApi {
+    func initialize(flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, any Error>) -> Void) {
+        let handler = CameraSessionHandler(enableFlash: flashState == FlashState.enabled).updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
+        let cameraListener = CameraImageListener(binaryMessenger: self.registrar.messenger())
+        cameraImageListener = cameraListener
+        let factory = FLNativeViewFactory(messenger: registrar.messenger(), cameraSessionHandler: handler)
+        registrar.register(factory, withId: "@views/native-camera-view")
+        listenToImages()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+          completion(.success(()))
+        }
+    }
+    
     var cancellables = Set<AnyCancellable>()
     func getCurrentZoomLevel() throws -> Double {
-        return Double(cameraHandler?.getCurrentZoom() ?? 3.0)
+        return Double(cameraViewModel.cameraHandler?.getCurrentZoom() ?? 3.0)
     }
     
     func getMinimumZoomLevel() throws -> Double {
-        return Double(cameraHandler?.getMinZoom() ?? 1.0)
+        return Double(cameraViewModel.cameraHandler?.getMinZoom() ?? 1.0)
     }
     
     func getMaximumZoomLevel() throws -> Double {
-        return Double(cameraHandler?.getMaxZoom() ?? 10.0)
+        return Double(cameraViewModel.cameraHandler?.getMaxZoom() ?? 10.0)
     }
     
     var registrar :  FlutterPluginRegistrar
@@ -60,28 +72,16 @@ class CameraApiImplementation: CameraApi {
     func getPlatformVersion() throws -> String {
         return "iOS " + UIDevice.current.systemVersion
     }
-    var cameraHandlerView : CameraHandlerView?
-    var cameraHandler: CameraSessionHandler?
+    
     var cameraImageListener: CameraImageListener?
+    @ObservedObject var cameraViewModel = CameraViewModel.shared
     
     func dispose() throws {
-        cameraHandler?.stopCamera()
-    }
-    
-    func initialize(flashState: FlashState, flashTorchLevel: Double) throws {
-        let handler = CameraSessionHandler(enableFlash: flashState == FlashState.enabled).updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
-        let view = CameraHandlerView(barcodeMode: true, cameraHandler: handler)
-        let cameraListener = CameraImageListener(binaryMessenger: self.registrar.messenger())
-        cameraHandler = handler
-        cameraHandlerView = view
-        cameraImageListener = cameraListener
-        let factory = FLNativeViewFactory(messenger: registrar.messenger(), cameraHandlerView: view)
-        registrar.register(factory, withId: "@views/native-camera-view")
-        listenToImages()
+        cameraViewModel.cameraHandler?.stopCamera()
     }
     
     func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
-        if let cameraImage = cameraHandlerView?.viewModel.currentCapturedImage, let imageData = cameraImage.pngData() {
+        if let cameraImage = self.cameraViewModel.currentCapturedImage, let imageData = cameraImage.pngData() {
             let flutterData = FlutterStandardTypedData(bytes: imageData)
             completion(.success(flutterData))
         } else {
@@ -93,13 +93,13 @@ class CameraApiImplementation: CameraApi {
     }
     
     func listenToImages() {
-        guard let listener = cameraImageListener, let view = cameraHandlerView else {
+        guard let listener = cameraImageListener else {
             print("Listener or view is not initialized")
             return
         }
         
         DispatchQueue.main.async {
-            view.viewModel.$currentCapturedImage
+            self.cameraViewModel.$currentCapturedImage
                 .receive(on: RunLoop.main)
                 .sink { [] uiImage in
                     guard let uiImage = uiImage else { return }
@@ -108,44 +108,44 @@ class CameraApiImplementation: CameraApi {
                         listener.onImageAvailable(image: flutterData, completion: {_ in })
                     }
                 }.store(in: &self.cancellables)
-
-            view.viewModel.$obtainedBarcodeResult
+            
+            self.cameraViewModel.$obtainedBarcodeResult
                 .receive(on: RunLoop.main)
                 .sink { barcode in
                     listener.onQrCodeAvailable(qrCode: barcode,completion: {_ in })
                 }.store(in: &self.cancellables)
         }
-
+        
     }
     
     func setZoomLevel(zoomLevel: Double) {
-        if let handler = cameraHandler {
+        if let handler =  cameraViewModel.cameraHandler {
             return handler.changeZoomLevel(zoom: zoomLevel)
         }
     }
     
     func setFlashStatus(isActive: Bool) {
-        if let handler = cameraHandler {
+        if let handler =  cameraViewModel.cameraHandler {
             return handler.changeFlashState(toggleState: isActive)
         }
     }
     
     func getFlashStatus() -> Bool {
-        if let handler = cameraHandler{
+        if let handler =  cameraViewModel.cameraHandler{
             return handler.isFlashEnabled()
         }
         return false
     }
     
-
+    
     @available(iOS 14.0, *)
     class FLNativeViewFactory: NSObject, FlutterPlatformViewFactory {
         private var messenger: FlutterBinaryMessenger
-        private var cameraHandlerView: CameraHandlerView
+        private var cameraSessionHandler: CameraSessionHandler
         
-        init(messenger: FlutterBinaryMessenger, cameraHandlerView: CameraHandlerView) {
+        init(messenger: FlutterBinaryMessenger, cameraSessionHandler: CameraSessionHandler) {
             self.messenger = messenger
-            self.cameraHandlerView  = cameraHandlerView
+            self.cameraSessionHandler = cameraSessionHandler
             super.init()
         }
         
@@ -159,7 +159,7 @@ class CameraApiImplementation: CameraApi {
                 viewIdentifier: viewId,
                 arguments: args,
                 binaryMessenger: messenger,
-                cameraHandlerView: cameraHandlerView)
+                cameraSessionHandler: cameraSessionHandler)
         }
     }
     
@@ -173,11 +173,11 @@ class CameraApiImplementation: CameraApi {
             viewIdentifier viewId: Int64,
             arguments args: Any?,
             binaryMessenger messenger: FlutterBinaryMessenger?,
-            cameraHandlerView: CameraHandlerView
+            cameraSessionHandler: CameraSessionHandler
         ) {
             _view = UIView()
             super.init(frame: frame)
-            let hostingController = UIHostingController(rootView: cameraHandlerView)
+            let hostingController = UIHostingController(rootView: CameraHandlerView(barcodeMode: true, cameraHandler: cameraSessionHandler))
             self._view.addConstrained(subview: hostingController.view)
             
         }

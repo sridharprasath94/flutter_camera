@@ -60,7 +60,7 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
   Future<double> getMaximumZoomLevel() => _cameraApi.getMaximumZoomLevel();
 
   /// Set the flash status.
-  void initialize(
+  Future<void> initialize(
     FlashState flashState,
     double flashTorchLevel,
   ) =>

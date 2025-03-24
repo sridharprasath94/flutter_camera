@@ -25,6 +25,7 @@ abstract class CameraApi {
 
   void dispose();
 
+  @async
   void initialize(FlashState flashState,
       double flashTorchLevel,);
 
