@@ -22,9 +22,9 @@ enum FlashState {
 
 @HostApi()
 abstract class CameraApi {
+
   void dispose();
 
-  @async
   void initialize(FlashState flashState,
       double flashTorchLevel,);
 
@@ -38,6 +38,8 @@ abstract class CameraApi {
   void setFlashStatus({required bool isActive});
 
   bool getFlashStatus();
+
+  String getPlatformVersion();
 }
 
 @FlutterApi()

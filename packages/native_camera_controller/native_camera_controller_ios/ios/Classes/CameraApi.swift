@@ -119,12 +119,13 @@ class CameraApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol CameraApi {
   func dispose() throws
-  func initialize(flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, Error>) -> Void)
+  func initialize(flashState: FlashState, flashTorchLevel: Double) throws
   func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func setZoomLevel(zoomLevel: Double) throws
   func getZoomLevel() throws -> Double
   func setFlashStatus(isActive: Bool) throws
   func getFlashStatus() throws -> Bool
+  func getPlatformVersion() throws -> String
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -152,13 +153,11 @@ class CameraApiSetup {
         let args = message as! [Any?]
         let flashStateArg = args[0] as! FlashState
         let flashTorchLevelArg = args[1] as! Double
-        api.initialize(flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg) { result in
-          switch result {
-          case .success:
-            reply(wrapResult(nil))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
+        do {
+          try api.initialize(flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
         }
       }
     } else {
@@ -234,6 +233,19 @@ class CameraApiSetup {
       }
     } else {
       getFlashStatusChannel.setMessageHandler(nil)
+    }
+    let getPlatformVersionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getPlatformVersion\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getPlatformVersionChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.getPlatformVersion()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getPlatformVersionChannel.setMessageHandler(nil)
     }
   }
 }

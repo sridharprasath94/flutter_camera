@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:native_camera_controller_ios/native_camera_controller_ios.dart';
+import 'package:native_camera_controller_platform_interface/native_camera_controller_platform_interface.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
+    _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -32,7 +34,8 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     try {
       platformVersion =
-          await _nativeCameraControllerIosPlugin.getPlatformVersion() ?? 'Unknown platform version';
+          await _nativeCameraControllerIosPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -51,11 +54,18 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
+        appBar: AppBar(title: const Text('Plugin example app')),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            children: [
+              Text('Running on: $_platformVersion\n'),
+              SizedBox(
+                width: 300,
+                height: 300,
+                child: _nativeCameraControllerIosPlugin.getCameraView(),
+              ),
+            ],
+          ),
         ),
       ),
     );
