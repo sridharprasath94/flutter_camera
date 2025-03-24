@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - native_camera_controller_ios (0.0.1):
+    - Flutter
+    - SwiftIOSCamera (= 0.1.0)
+  - SwiftIOSCamera (0.1.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - native_camera_controller_ios (from `.symlinks/plugins/native_camera_controller_ios/ios`)
+
+SPEC REPOS:
+  "git@github.com:sridharprasath94/cocoapods.git":
+    - SwiftIOSCamera
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  native_camera_controller_ios:
+    :path: ".symlinks/plugins/native_camera_controller_ios/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  native_camera_controller_ios: d4eb5d35bb12066b996cccd525328705e2fced13
+  SwiftIOSCamera: 6f1e20e8dc7763064e880c555eb2c3d19627ab8b
+
+PODFILE CHECKSUM: 2072fbcffb055157f49fbfcb8aa3e61f99b9452b
+
+COCOAPODS: 1.16.2

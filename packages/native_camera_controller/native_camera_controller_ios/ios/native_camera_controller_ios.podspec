@@ -15,6 +15,7 @@ iOS implementation of the native_camera_controller plugin.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
+  s.dependency 'SwiftIOSCamera', '0.1.0'
   s.platform = :ios, '15.0'
 
   # Flutter.framework does not contain a i386 slice.
