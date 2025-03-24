@@ -50,11 +50,17 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
   /// Initialize the camera controller.
   Future<bool> getFlashStatus() => _cameraApi.getFlashStatus();
 
-  /// Takes a picture and returns the image as a Uint8List.
-  Future<double> getZoomLevel() => _cameraApi.getZoomLevel();
+  /// Get the current zoom level.
+  Future<double> getCurrentZoomLevel() => _cameraApi.getCurrentZoomLevel();
+
+  /// Get the minimum zoom level.
+  Future<double> getMinimumZoomLevel() => _cameraApi.getMinimumZoomLevel();
+
+  /// Get the maximum zoom level.
+  Future<double> getMaximumZoomLevel() => _cameraApi.getMaximumZoomLevel();
 
   /// Set the flash status.
-  Future<void> initialize(
+  void initialize(
     FlashState flashState,
     double flashTorchLevel,
   ) =>

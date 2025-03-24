@@ -166,8 +166,62 @@ class CameraApi {
     }
   }
 
-  Future<double> getZoomLevel() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getZoomLevel$pigeonVar_messageChannelSuffix';
+  Future<double> getCurrentZoomLevel() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getCurrentZoomLevel$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as double?)!;
+    }
+  }
+
+  Future<double> getMinimumZoomLevel() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getMinimumZoomLevel$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as double?)!;
+    }
+  }
+
+  Future<double> getMaximumZoomLevel() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getMaximumZoomLevel$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -275,7 +329,7 @@ abstract class CameraImageListener {
 
   void onImageAvailable(Uint8List image);
 
-  void onQrCodeAvailable(String qrCode);
+  void onQrCodeAvailable(String? qrCode);
 
   static void setUp(CameraImageListener? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
@@ -316,10 +370,8 @@ abstract class CameraImageListener {
           'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_qrCode = (args[0] as String?);
-          assert(arg_qrCode != null,
-              'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null, expected non-null String.');
           try {
-            api.onQrCodeAvailable(arg_qrCode!);
+            api.onQrCodeAvailable(arg_qrCode);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

@@ -1,5 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
-import 'package:native_camera_controller_platform_interface/src/platform/native_camera_controller_platform_interface.dart';
+import 'package:native_camera_controller_platform_interface/native_camera_controller_platform_interface.dart';
 
 /// An implementation of [NativeCameraControllerPlatform] that uses
 /// method channels.

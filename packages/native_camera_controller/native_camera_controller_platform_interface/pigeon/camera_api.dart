@@ -33,7 +33,11 @@ abstract class CameraApi {
 
   void setZoomLevel({required double zoomLevel});
 
-  double getZoomLevel();
+  double getCurrentZoomLevel();
+
+  double getMinimumZoomLevel();
+
+  double getMaximumZoomLevel();
 
   void setFlashStatus({required bool isActive});
 
@@ -46,5 +50,5 @@ abstract class CameraApi {
 abstract class CameraImageListener {
   void onImageAvailable(Uint8List image);
 
-  void onQrCodeAvailable(String qrCode);
+  void onQrCodeAvailable(String? qrCode);
 }
