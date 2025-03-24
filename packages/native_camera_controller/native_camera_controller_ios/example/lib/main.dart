@@ -16,14 +16,19 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> implements CameraImageListener {
   String _platformVersion = 'Unknown';
   bool _isFlashEnabled = false;
   double _zoomLevel = 0.0;
   double _minZoomLevel = 0.0;
   double _maxZoomLevel = 1.0;
 
-  final _nativeCameraControllerIosPlugin = NativeCameraControllerIOS();
+  final NativeCameraControllerPlatform _nativeCameraControllerIosPlugin =
+      NativeCameraControllerIOS();
+
+  Uint8List? _currentStreamedImage;
+  Uint8List? _currentCapturedImage;
+  String? _qrCode;
 
   @override
   void initState() {
@@ -37,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     try {
       platformVersion =
           await _nativeCameraControllerIosPlugin.getPlatformVersion() ??
-              'Unknown platform version';
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -50,11 +55,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
+    _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
     bool flashStatus = await _nativeCameraControllerIosPlugin.getFlashStatus();
-    double minZoom = await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
-    double maxZoom = await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
-    double currentZoom = await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
+    double minZoom =
+        await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
+    double maxZoom =
+        await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
+    double currentZoom =
+        await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
+
+    CameraImageListener.setUp(this);
 
     setState(() {
       _isFlashEnabled = flashStatus;
@@ -66,7 +76,9 @@ class _MyAppState extends State<MyApp> {
 
   void _toggleFlash() async {
     bool newFlashStatus = !_isFlashEnabled;
-    await _nativeCameraControllerIosPlugin.setFlashStatus(isActive: newFlashStatus);
+    await _nativeCameraControllerIosPlugin.setFlashStatus(
+      isActive: newFlashStatus,
+    );
     setState(() {
       _isFlashEnabled = newFlashStatus;
     });
@@ -93,10 +105,29 @@ class _MyAppState extends State<MyApp> {
                 IconButton(
                   icon: Icon(
                     _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
-                    color: _isFlashEnabled ? Colors.yellow : Colors.grey,
+                    color: _isFlashEnabled ? Colors.green : Colors.grey,
                     size: 30,
                   ),
                   onPressed: _toggleFlash,
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(
+                    Icons.picture_in_picture_rounded,
+                    color: Colors.green,
+                    size: 30,
+                  ),
+                  onPressed: (() async {
+                    Uint8List? image =
+                        await _nativeCameraControllerIosPlugin.takePicture();
+                    setState(() {
+                      _currentCapturedImage = image;
+                    });
+                    await Future.delayed(const Duration(seconds: 2));
+                    setState(() {
+                      _currentCapturedImage = null;
+                    });
+                  }),
                 ),
                 const SizedBox(width: 20),
                 const Text('Zoom:'),
@@ -110,14 +141,57 @@ class _MyAppState extends State<MyApp> {
             ),
             Center(
               child: SizedBox(
-                width: 300,
-                height: 300,
+                width: 250,
+                height: 250,
                 child: _nativeCameraControllerIosPlugin.getCameraView(),
               ),
             ),
+            const SizedBox(height: 8),
+            if (_currentStreamedImage != null)
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Image.memory(
+                  _currentStreamedImage!,
+                  gaplessPlayback: true,
+                ),
+              )
+            else
+              SizedBox.shrink(),
+            const SizedBox(height: 8),
+            if (_currentCapturedImage != null)
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Image.memory(
+                  _currentCapturedImage!,
+                  gaplessPlayback: true,
+                ),
+              )
+            else
+              SizedBox.shrink(),
+            const SizedBox(height: 8),
+            if (_qrCode != null)
+              Text('QR Code: $_qrCode')
+            else
+              SizedBox.shrink(),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void onImageAvailable(Uint8List image) {
+    setState(() {
+      _currentStreamedImage = image;
+    });
+  }
+
+  @override
+  void onQrCodeAvailable(String? qrCode) {
+    setState(() {
+      _qrCode = qrCode;
+    });
   }
 }

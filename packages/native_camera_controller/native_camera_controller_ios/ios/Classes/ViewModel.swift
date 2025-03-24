@@ -12,7 +12,6 @@ import SwiftUI
 import Flutter
 import MobileCoreServices
 
-
 enum CustomError: Error {
     case throwError(String)
 }

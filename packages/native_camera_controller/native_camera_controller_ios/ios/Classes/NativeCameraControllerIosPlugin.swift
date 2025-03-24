@@ -1,4 +1,5 @@
 import Flutter
+import Combine
 import SwiftUI
 import UIKit
 import SwiftIOSCamera
@@ -36,6 +37,7 @@ extension UIView {
 
 
 class CameraApiImplementation: CameraApi {
+    var cancellables = Set<AnyCancellable>()
     func getCurrentZoomLevel() throws -> Double {
         return Double(cameraHandler?.getCurrentZoom() ?? 3.0)
     }
@@ -60,6 +62,7 @@ class CameraApiImplementation: CameraApi {
     }
     var cameraHandlerView : CameraHandlerView?
     var cameraHandler: CameraSessionHandler?
+    var cameraImageListener: CameraImageListener?
     
     func dispose() throws {
         cameraHandler?.stopCamera()
@@ -68,16 +71,17 @@ class CameraApiImplementation: CameraApi {
     func initialize(flashState: FlashState, flashTorchLevel: Double) throws {
         let handler = CameraSessionHandler(enableFlash: flashState == FlashState.enabled).updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
         let view = CameraHandlerView(barcodeMode: true, cameraHandler: handler)
+        let cameraListener = CameraImageListener(binaryMessenger: self.registrar.messenger())
         cameraHandler = handler
         cameraHandlerView = view
+        cameraImageListener = cameraListener
         let factory = FLNativeViewFactory(messenger: registrar.messenger(), cameraHandlerView: view)
         registrar.register(factory, withId: "@views/native-camera-view")
+        listenToImages()
     }
     
     func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
-        let cameraImageOption =  cameraHandlerView?.currentCapturedImage
-        
-        if let cameraImage = cameraImageOption, let imageData = cameraImage.pngData() {
+        if let cameraImage = cameraHandlerView?.viewModel.currentCapturedImage, let imageData = cameraImage.pngData() {
             let flutterData = FlutterStandardTypedData(bytes: imageData)
             completion(.success(flutterData))
         } else {
@@ -86,6 +90,32 @@ class CameraApiImplementation: CameraApi {
                 userInfo: [NSLocalizedDescriptionKey: "Failed to capture image"])
             completion(.failure(error))
         }
+    }
+    
+    func listenToImages() {
+        guard let listener = cameraImageListener, let view = cameraHandlerView else {
+            print("Listener or view is not initialized")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            view.viewModel.$currentCapturedImage
+                .receive(on: RunLoop.main)
+                .sink { [] uiImage in
+                    guard let uiImage = uiImage else { return }
+                    if let imageData = uiImage.pngData() {
+                        let flutterData = FlutterStandardTypedData(bytes: imageData)
+                        listener.onImageAvailable(image: flutterData, completion: {_ in })
+                    }
+                }.store(in: &self.cancellables)
+
+            view.viewModel.$obtainedBarcodeResult
+                .receive(on: RunLoop.main)
+                .sink { barcode in
+                    listener.onQrCodeAvailable(qrCode: barcode,completion: {_ in })
+                }.store(in: &self.cancellables)
+        }
+
     }
     
     func setZoomLevel(zoomLevel: Double) {

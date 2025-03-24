@@ -1,12 +1,18 @@
 import SwiftUI
 import SwiftIOSCamera
 
+
+class CameraViewModel: ObservableObject {
+    @Published var currentCapturedImage: UIImage? = nil
+    @Published var obtainedBarcodeResult: String? = nil
+}
+
+
 struct CameraHandlerView: View {
     @Environment(\.presentationMode) private var presentationMode
     @StateObject var cameraHandler : CameraSessionHandler
     @State var barcodeMode: Bool
-    @State var currentCapturedImage: UIImage? = nil
-    @State var obtainedBarcodeResult: String? = nil
+    @ObservedObject var viewModel = CameraViewModel()
     @State private var initialFlash: Bool = false
     @State var currentCameraState : CameraState = .CAMERA_RESUME
     enum CameraState {
@@ -32,16 +38,12 @@ struct CameraHandlerView: View {
     fileprivate func cameraControllerView(viewWidth: CGFloat) -> some View {
         return HStack {
             CameraView(cameraSessionHandler: cameraHandler, cameraMode: barcodeMode ? CameraMode.barcodeScan : CameraMode.cameraCapture,  previewMode: .ratio1X1(initialWidth: viewWidth)).initCameraCallback(cameraCaptureCallback: .init(onCameraImageObtained: { uiImage in
-                print("The ui image is \(String(describing: uiImage?.size))")
                 DispatchQueue.main.async {
-                    currentCapturedImage = uiImage
+                    viewModel.currentCapturedImage = uiImage
                 }
             }, onBarcodeObtained: { barcodeResult in
-                print(barcodeResult ?? "No barcode obtained")
                 DispatchQueue.main.async {
-                    if(barcodeResult != nil){
-                        obtainedBarcodeResult = barcodeResult
-                    }
+                   viewModel.obtainedBarcodeResult = barcodeResult
                  }
             }, onError: { exceptionType, error in
                 print(error)
