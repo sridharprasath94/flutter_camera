@@ -2,14 +2,22 @@ import SwiftUI
 import SwiftIOSCamera
 
 
-class CameraViewModel: ObservableObject {
+class CameraSession: ObservableObject {
     @Published var currentCapturedImage: UIImage? = nil
     @Published var obtainedBarcodeResult: String? = nil
-    @Published var cameraHandler: CameraSessionHandler? = nil
-    // Singleton instance
-    static let shared = CameraViewModel()
-
-    private init() {} // Private initializer to prevent instantiation from outside
+    @Published var currentFlash: Bool = false
+    static let shared = CameraSession()
+    private init() {}
+    
+    lazy var cameraHandler: CameraSessionHandler = {
+        fatalError("CameraSessionHandler must be explicitly initialized using `initialize` method")
+    }()
+    
+    func initializeCameraHandler(flashState: FlashState, flashTorchLevel: Double) {
+        cameraHandler = CameraSessionHandler(enableFlash: flashState == .enabled)
+        _ = cameraHandler.updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
+        cameraHandler.changeFlashState(toggleState: flashState == .enabled)
+    }
 }
 
 
@@ -17,7 +25,7 @@ struct CameraHandlerView: View {
     @Environment(\.presentationMode) private var presentationMode
     @StateObject var cameraHandler : CameraSessionHandler
     @State var barcodeMode: Bool
-    @ObservedObject var cameraViewModel = CameraViewModel.shared
+    @ObservedObject var cameraViewModel = CameraSession.shared
     @State private var initialFlash: Bool = false
     @State var currentCameraState : CameraState = .CAMERA_RESUME
     enum CameraState {
@@ -27,7 +35,6 @@ struct CameraHandlerView: View {
     init(barcodeMode: Bool, cameraHandler: CameraSessionHandler) {
         self._barcodeMode = State.init(initialValue: barcodeMode)
         self._cameraHandler = StateObject.init(wrappedValue: cameraHandler)
-        cameraViewModel.cameraHandler = cameraHandler
         print("Camera view")
     }
     var body: some View {
@@ -70,11 +77,6 @@ struct CameraHandlerView: View {
         self.currentCameraState = .CAMERA_STOP
         self.cameraHandler.onStop()
     }
-}
-
-protocol CameraViewDelegate: AnyObject {
-    func onImageReceived(_ image: UIImage)
-    func onBarcodeReceived(_ barcode: String?)
 }
 
 struct CameraHandlerView_Previews: PreviewProvider {
