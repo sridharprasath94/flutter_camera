@@ -23,7 +23,7 @@ class MockNativeCameraControllerIosPlatform
   Future<bool> getFlashStatus() async => true;
 
   @override
-  Future<double> getZoomLevel() async => 2.0;
+  Future<double> getCurrentZoomLevel() async => 2.0;
 
   @override
   Future<void> initialize(
@@ -39,6 +39,12 @@ class MockNativeCameraControllerIosPlatform
 
   @override
   Future<Uint8List?> takePicture() async => Uint8List(0);
+
+  @override
+  Future<double> getMaximumZoomLevel() async => 10.0;
+
+  @override
+  Future<double> getMinimumZoomLevel() async => 1.0;
 }
 
 void main() {

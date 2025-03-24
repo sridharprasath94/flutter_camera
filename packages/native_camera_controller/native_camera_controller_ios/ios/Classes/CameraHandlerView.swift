@@ -62,40 +62,6 @@ struct CameraHandlerView: View {
         self.currentCameraState = .CAMERA_STOP
         self.cameraHandler.onStop()
     }
-    
-     func updateFlash() {
-        initialFlash = !cameraHandler.isFlashEnabled()
-        cameraHandler.changeFlashState(toggleState: initialFlash)
-    }
-    
-    func updateCameraZoom(zoomFactor: CGFloat) {
-        cameraHandler.changeZoomLevel(zoom: zoomFactor)
-    }
-    
-    
-    func getCurrentFlash() -> Bool {
-        return cameraHandler.isFlashEnabled()
-    }
-    
-    
-    func getMinZoom() -> CGFloat {
-        return cameraHandler.getMinZoom()
-    }
-    
-    func getMaxZoom() -> CGFloat {
-        return cameraHandler.getMaxZoom()
-    }
-    
-    func getZoomLevel() throws -> Double {
-        let currentZoomLevel = cameraHandler.getCurrentZoom()
-        let minZoomLevel = cameraHandler.getMinZoom()
-        let maxZoomLevel = cameraHandler.getMaxZoom()
-        
-        let normalizedZoomLevel = (currentZoomLevel - minZoomLevel) / (maxZoomLevel - minZoomLevel)
-        
-        return normalizedZoomLevel
-    }
-
 }
 
 

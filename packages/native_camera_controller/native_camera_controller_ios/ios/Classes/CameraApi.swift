@@ -122,7 +122,9 @@ protocol CameraApi {
   func initialize(flashState: FlashState, flashTorchLevel: Double) throws
   func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func setZoomLevel(zoomLevel: Double) throws
-  func getZoomLevel() throws -> Double
+  func getCurrentZoomLevel() throws -> Double
+  func getMinimumZoomLevel() throws -> Double
+  func getMaximumZoomLevel() throws -> Double
   func setFlashStatus(isActive: Bool) throws
   func getFlashStatus() throws -> Bool
   func getPlatformVersion() throws -> String
@@ -193,18 +195,44 @@ class CameraApiSetup {
     } else {
       setZoomLevelChannel.setMessageHandler(nil)
     }
-    let getZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getCurrentZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getCurrentZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      getZoomLevelChannel.setMessageHandler { _, reply in
+      getCurrentZoomLevelChannel.setMessageHandler { _, reply in
         do {
-          let result = try api.getZoomLevel()
+          let result = try api.getCurrentZoomLevel()
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
         }
       }
     } else {
-      getZoomLevelChannel.setMessageHandler(nil)
+      getCurrentZoomLevelChannel.setMessageHandler(nil)
+    }
+    let getMinimumZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getMinimumZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getMinimumZoomLevelChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.getMinimumZoomLevel()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getMinimumZoomLevelChannel.setMessageHandler(nil)
+    }
+    let getMaximumZoomLevelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.getMaximumZoomLevel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getMaximumZoomLevelChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.getMaximumZoomLevel()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getMaximumZoomLevelChannel.setMessageHandler(nil)
     }
     let setFlashStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.setFlashStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

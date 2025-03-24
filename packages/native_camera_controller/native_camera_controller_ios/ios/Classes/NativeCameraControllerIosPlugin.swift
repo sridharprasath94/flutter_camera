@@ -36,6 +36,18 @@ extension UIView {
 
 
 class CameraApiImplementation: CameraApi {
+    func getCurrentZoomLevel() throws -> Double {
+        return Double(cameraHandler?.getCurrentZoom() ?? 3.0)
+    }
+    
+    func getMinimumZoomLevel() throws -> Double {
+        return Double(cameraHandler?.getMinZoom() ?? 1.0)
+    }
+    
+    func getMaximumZoomLevel() throws -> Double {
+        return Double(cameraHandler?.getMaxZoom() ?? 10.0)
+    }
+    
     var registrar :  FlutterPluginRegistrar
     
     init(registrar: FlutterPluginRegistrar){
@@ -47,22 +59,19 @@ class CameraApiImplementation: CameraApi {
         return "iOS " + UIDevice.current.systemVersion
     }
     var cameraHandlerView : CameraHandlerView?
-    
-    func getZoomLevel() throws -> Double {
-        try cameraHandlerView?.getZoomLevel() ?? 3.0
-    }
+    var cameraHandler: CameraSessionHandler?
     
     func dispose() throws {
-        cameraHandlerView?.stopCamera()
+        cameraHandler?.stopCamera()
     }
     
     func initialize(flashState: FlashState, flashTorchLevel: Double) throws {
-        let cameraHandler = CameraSessionHandler(enableFlash: flashState == FlashState.enabled).updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
-        cameraHandlerView = CameraHandlerView(barcodeMode: true, cameraHandler: cameraHandler)
-        if let view = cameraHandlerView {
-            let factory = FLNativeViewFactory(messenger: registrar.messenger(), cameraHandlerView: view)
-            registrar.register(factory, withId: "@views/native-camera-view")
-        }
+        let handler = CameraSessionHandler(enableFlash: flashState == FlashState.enabled).updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
+        let view = CameraHandlerView(barcodeMode: true, cameraHandler: handler)
+        cameraHandler = handler
+        cameraHandlerView = view
+        let factory = FLNativeViewFactory(messenger: registrar.messenger(), cameraHandlerView: view)
+        registrar.register(factory, withId: "@views/native-camera-view")
     }
     
     func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
@@ -80,20 +89,20 @@ class CameraApiImplementation: CameraApi {
     }
     
     func setZoomLevel(zoomLevel: Double) {
-        if let view = cameraHandlerView {
-            return view.updateCameraZoom(zoomFactor: zoomLevel)
+        if let handler = cameraHandler {
+            return handler.changeZoomLevel(zoom: zoomLevel)
         }
     }
     
     func setFlashStatus(isActive: Bool) {
-        if let view = cameraHandlerView {
-            return view.updateFlash()
+        if let handler = cameraHandler {
+            return handler.changeFlashState(toggleState: isActive)
         }
     }
     
     func getFlashStatus() -> Bool {
-        if let view = cameraHandlerView {
-            return view.getCurrentFlash()
+        if let handler = cameraHandler{
+            return handler.isFlashEnabled()
         }
         return false
     }
