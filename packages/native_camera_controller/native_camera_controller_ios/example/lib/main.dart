@@ -20,15 +20,22 @@ class MyApp extends StatelessWidget {
       home: StartPage(),
       onGenerateRoute: (settings) {
         if (settings.name == '/camera') {
-          return MaterialPageRoute(builder: (context) => CameraPage());
+          return MaterialPageRoute(
+            maintainState: false,
+            builder: (context) => CameraPage(),
+          );
         } else if (settings.name == '/qr') {
           final String? qrCode = settings.arguments as String?;
           return MaterialPageRoute(
+            maintainState: false,
             builder:
                 (context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
           );
         } else {
-          return MaterialPageRoute(builder: (context) => StartPage());
+          return MaterialPageRoute(
+            maintainState: false,
+            builder: (context) => StartPage(),
+          );
         }
       },
     );
@@ -40,13 +47,17 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/camera');
-          },
-          child: const Text('Start Camera'),
+    return CustomWillPopScope(
+      onWillPop: false,
+      action: () {},
+      child: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/camera');
+            },
+            child: const Text('Start Camera'),
+          ),
         ),
       ),
     );
@@ -68,7 +79,7 @@ class _CameraPageState extends State<CameraPage>
   double _minZoomLevel = 0.0;
   double _maxZoomLevel = 1.0;
 
-  final NativeCameraControllerPlatform _nativeCameraControllerIosPlugin =
+  final NativeCameraControllerPlatform _nativeCameraControllerAndroidPlugin =
       NativeCameraControllerIOS();
 
   Uint8List? _currentStreamedImage;
@@ -77,13 +88,14 @@ class _CameraPageState extends State<CameraPage>
   @override
   void initState() {
     super.initState();
+    debugPrint('Initializing camera controller');
     initPlatformState();
     _initializeCamera();
   }
 
   @override
   void dispose() {
-    _nativeCameraControllerIosPlugin.dispose();
+    _nativeCameraControllerAndroidPlugin.dispose();
     super.dispose();
   }
 
@@ -91,7 +103,7 @@ class _CameraPageState extends State<CameraPage>
     String platformVersion;
     try {
       platformVersion =
-          await _nativeCameraControllerIosPlugin.getPlatformVersion() ??
+          await _nativeCameraControllerAndroidPlugin.getPlatformVersion() ??
           'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -105,14 +117,18 @@ class _CameraPageState extends State<CameraPage>
   }
 
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
-    bool flashStatus = await _nativeCameraControllerIosPlugin.getFlashStatus();
+    await _nativeCameraControllerAndroidPlugin.initialize(
+      FlashState.enabled,
+      0.5,
+    );
     double minZoom =
-        await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
     double maxZoom =
-        await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
     double currentZoom =
-        await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
+    bool flashStatus =
+        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
     CameraImageListener.setUp(this);
 
@@ -126,7 +142,7 @@ class _CameraPageState extends State<CameraPage>
 
   void _toggleFlash() async {
     bool newFlashStatus = !_isFlashEnabled;
-    await _nativeCameraControllerIosPlugin.setFlashStatus(
+    await _nativeCameraControllerAndroidPlugin.setFlashStatus(
       isActive: newFlashStatus,
     );
     setState(() {
@@ -135,7 +151,7 @@ class _CameraPageState extends State<CameraPage>
   }
 
   void _setZoomLevel(double value) async {
-    await _nativeCameraControllerIosPlugin.setZoomLevel(zoomLevel: value);
+    await _nativeCameraControllerAndroidPlugin.setZoomLevel(zoomLevel: value);
     setState(() {
       _zoomLevel = value;
     });
@@ -160,81 +176,90 @@ class _CameraPageState extends State<CameraPage>
             ),
           ),
         ),
-        body: Column(
-          children: [
-            Text('Running on: $_platformVersion\n'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
-                    color: _isFlashEnabled ? Colors.green : Colors.grey,
-                    size: 30,
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Running on: $_platformVersion\n'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
+                      color: _isFlashEnabled ? Colors.green : Colors.grey,
+                      size: 30,
+                    ),
+                    onPressed: _toggleFlash,
                   ),
-                  onPressed: _toggleFlash,
-                ),
-                const SizedBox(width: 20),
-                IconButton(
-                  icon: Icon(
-                    Icons.picture_in_picture_rounded,
-                    color: Colors.green,
-                    size: 30,
+                  const SizedBox(width: 20),
+                  IconButton(
+                    icon: Icon(
+                      Icons.picture_in_picture_rounded,
+                      color: Colors.green,
+                      size: 30,
+                    ),
+                    onPressed: (() async {
+                      Uint8List? image =
+                          await _nativeCameraControllerAndroidPlugin
+                              .takePicture();
+                      setState(() {
+                        _currentCapturedImage = image;
+                      });
+                      await Future.delayed(const Duration(seconds: 2));
+                      setState(() {
+                        _currentCapturedImage = null;
+                      });
+                    }),
                   ),
-                  onPressed: (() async {
-                    Uint8List? image =
-                    await _nativeCameraControllerIosPlugin.takePicture();
-                    setState(() {
-                      _currentCapturedImage = image;
-                    });
-                    await Future.delayed(const Duration(seconds: 2));
-                    setState(() {
-                      _currentCapturedImage = null;
-                    });
-                  }),
-                ),
-                const SizedBox(width: 20),
-                const Text('Zoom:'),
-                Slider(
-                  value: _zoomLevel,
-                  min: _minZoomLevel,
-                  max: _maxZoomLevel,
-                  onChanged: _setZoomLevel,
-                ),
-              ],
-            ),
-            Center(
-              child: SizedBox(
-                width: 250,
-                height: 250,
-                child: _nativeCameraControllerIosPlugin.getCameraView(),
+                  const SizedBox(width: 20),
+                  const Text('Zoom:'),
+                  Slider(
+                    value: _zoomLevel,
+                    min: _minZoomLevel,
+                    max: _maxZoomLevel,
+                    onChanged: _setZoomLevel,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            if (_currentStreamedImage != null)
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.memory(
-                  _currentStreamedImage!,
-                  gaplessPlayback: true,
+              Center(
+                child: SizedBox(
+                  width: 250,
+                  height: 250,
+                  child: _nativeCameraControllerAndroidPlugin.getCameraView(),
                 ),
-              )
-            else
-              SizedBox.shrink(),
-            const SizedBox(height: 8),
-            if (_currentCapturedImage != null)
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.memory(
-                  _currentCapturedImage!,
-                  gaplessPlayback: true,
-                ),
-              )
-            else
-              SizedBox.shrink(),
-          ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_currentStreamedImage != null)
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: Image.memory(
+                        _currentStreamedImage!,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+                  const SizedBox(width: 20),
+                  if (_currentCapturedImage != null)
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: Image.memory(
+                        _currentCapturedImage!,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -285,14 +310,11 @@ class QRCodePage extends StatelessWidget {
             ),
           ),
         ),
-        body: Center(
-          child: Text('QR Code: $qrCode'),
-        ),
+        body: Center(child: Text('QR Code: $qrCode')),
       ),
     );
   }
 }
-
 
 class CustomWillPopScope extends StatelessWidget {
   const CustomWillPopScope({
@@ -307,25 +329,23 @@ class CustomWillPopScope extends StatelessWidget {
   final VoidCallback action;
 
   @override
-  Widget build(BuildContext context) => Platform.isIOS
-      ? GestureDetector(
-    onPanEnd: (DragEndDetails details) {
-      if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
-        action();
-      }
-    },
-    child: PopScope(
-      canPop: false,
-      child: child,
-    ),
-  )
-      : PopScope(
-    canPop: false,
-    onPopInvokedWithResult: (bool didPop, Object? result) {
-      if (onWillPop) {
-        action();
-      }
-    },
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      Platform.isIOS
+          ? GestureDetector(
+            onPanEnd: (DragEndDetails details) {
+              if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+                action();
+              }
+            },
+            child: PopScope(canPop: false, child: child),
+          )
+          : PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (bool didPop, Object? result) {
+              if (onWillPop) {
+                action();
+              }
+            },
+            child: child,
+          );
 }
