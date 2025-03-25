@@ -40,6 +40,7 @@ android {
     dependencies {
         implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
         api(name: 'ui-0.2.0', ext: 'aar')
+        api 'com.google.mlkit:barcode-scanning:17.3.0'
         testImplementation("junit:junit:4.13.2")
         testImplementation("org.mockito:mockito-core:5.1.1")
     }

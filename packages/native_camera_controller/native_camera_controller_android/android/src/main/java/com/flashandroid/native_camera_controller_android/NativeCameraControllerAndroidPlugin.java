@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.flashandroid.native_camera_controller_android.databinding.CameraViewBinding;
 import com.flashandroid.sdk.ui.CameraView;
@@ -40,13 +41,15 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     /// when the Flutter Engine is detached from the Activity
     private MethodChannel channel;
     private final static String plugin_name = "native_camera_controller_android";
-    private final static String TAG = "NATIVE_CAMERA_CONTROLLER_ANDROID";
-    private final static String android_view_id = "@views/native-view";
-    private CameraView cameraView = null;
+    private final static String TAG = "NATIVE_CAMERA_CONTROLLER_ANDROID_CAMERA";
+    private final static String android_view_id = "@views/native-camera-view";
+    private CameraView cameraView;
     public FlutterPluginBinding flutterPluginBinding;
     public Activity activity;
     public ActivityPluginBinding activityPluginBinding;
     private CameraViewBinding cameraViewBinding;
+
+    private CameraScanModel cameraScanModel;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -104,7 +107,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
                 }
         );
 
-//        setUpMddiApi();
+        setUpCameraApi();
 
         binding.getActivity().getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
@@ -161,15 +164,14 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     private void disposeView() {
         Log.d(TAG, "Disposing the view");
         cameraViewBinding.cameraView.onPause();
-//
-//        if (cameraScanModel != null) {
-//            cameraScanModel.cancelObservers(activity);
-//            activity.runOnUiThread(() -> cameraViewBinding.overlayImageView.setImageBitmap(null));
-//            cameraScanModel = null;
-//        }
-//        if (cameraViewBinding.getRoot() != null && cameraViewBinding.getRoot().getParent() != null) {
-//            ((ViewGroup) cameraViewBinding.getRoot().getParent()).removeView(cameraViewBinding.getRoot());
-//        }
+
+        if (cameraScanModel != null) {
+            cameraScanModel.cancelObservers(activity);
+            cameraScanModel = null;
+        }
+        if (cameraViewBinding.getRoot().getParent() != null) {
+            ((ViewGroup) cameraViewBinding.getRoot().getParent()).removeView(cameraViewBinding.getRoot());
+        }
     }
 
     @Override
@@ -178,6 +180,85 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
         return true;
     }
 
+    private void setUpCameraApi() {
+        Log.d(TAG, "Setting up CameraApi");
+        CameraApiInterface.CameraApi.setUp(flutterPluginBinding.getBinaryMessenger(), new CameraApiInterface.CameraApi() {
+            @Override
+            public void dispose() {
+                cameraView.onPause();
+            }
+
+            @Override
+            public void initialize(@NonNull CameraApiInterface.FlashState flashState, @NonNull Double flashTorchLevel, @NonNull CameraApiInterface.VoidResult result) {
+                cameraScanModel = new CameraScanModel(activity, flashState, flashTorchLevel);
+                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, 50);
+                }
+                activity.runOnUiThread(() -> setupCamera());
+                result.success();
+            }
+
+            @Override
+            public void takePicture(@NonNull CameraApiInterface.Result<byte[]> result) {
+
+            }
+
+            @Override
+            public void setZoomLevel(@NonNull Double zoomLevel) {
+                cameraView.changeZoomLevel(zoomLevel.intValue());
+            }
+
+            @NonNull
+            @Override
+            public Double getCurrentZoomLevel() {
+                return (double) cameraView.getCurrentZoom();
+            }
+
+            @NonNull
+            @Override
+            public Double getMinimumZoomLevel() {
+                return (double) cameraView.getMinZoom();
+            }
+
+            @NonNull
+            @Override
+            public Double getMaximumZoomLevel() {
+                return (double) cameraView.getMaxZoom();
+            }
+
+            @Override
+            public void setFlashStatus(@NonNull Boolean isActive) {
+                cameraView.changeFlashState(isActive);
+            }
+
+            @NonNull
+            @Override
+            public Boolean getFlashStatus() {
+                return cameraView.isFlashEnabled();
+            }
+
+            @NonNull
+            @Override
+            public String getPlatformVersion() {
+                return "Android " + android.os.Build.VERSION.RELEASE;
+            }
+        });
+    }
+
+    private void setupCamera() {
+
+        cameraScanModel.getStreamBitmapObserver().observe((LifecycleOwner) activity, bitmap -> {
+            Log.d(TAG, "Bitmap obtained");
+        });
+        cameraScanModel.getBarcodeResultObserver().observe((LifecycleOwner) activity, barcodeResult -> {
+            Log.d(TAG, "Barcode result obtained");
+        });
+        cameraScanModel.getExceptionObserver().observe((LifecycleOwner) activity, exception -> {
+            Log.d(TAG, "Exception obtained");
+        });
+        cameraView = cameraViewBinding.cameraView;
+        cameraScanModel.initCamera(activity, cameraView);
+    }
     @Override
     public void onDetachedFromActivityForConfigChanges() {
         Log.d(TAG, "Detaching activity config changes");
