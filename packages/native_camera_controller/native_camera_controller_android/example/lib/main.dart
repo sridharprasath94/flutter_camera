@@ -231,9 +231,11 @@ class _CameraPageState extends State<CameraPage> {
                         _currentCapturedImage = image;
                       });
                       await Future<Object?>.delayed(const Duration(seconds: 2));
-                      setState(() {
-                        _currentCapturedImage = null;
-                      });
+                      if(mounted){
+                        setState(() {
+                          _currentCapturedImage = null;
+                        });
+                      }
                     },
                   ),
                   const SizedBox(width: 20),

@@ -44,18 +44,15 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => CustomWillPopScope(
-    onWillPop: true,
+    onWillPop: false,
     action: Platform.isAndroid ? SystemNavigator.pop : () {},
     child: Scaffold(
-      bottomNavigationBar: Platform.isAndroid ? BottomAppBar(
+      bottomNavigationBar: Platform.isAndroid ? const BottomAppBar(
         color: Colors.transparent,
         child: Align(
           alignment: Alignment.bottomLeft,
           child: BackButton(
-            onPressed:
-                Platform.isIOS
-                    ? SystemNavigator.pop
-                    : () {},
+            onPressed: SystemNavigator.pop,
           ),
         ),
       ) : null,
@@ -215,9 +212,11 @@ class _CameraPageState extends State<CameraPage> {
                       _currentCapturedImage = image;
                     });
                     await Future<Object?>.delayed(const Duration(seconds: 2));
-                    setState(() {
-                      _currentCapturedImage = null;
-                    });
+                    if(mounted){
+                      setState(() {
+                        _currentCapturedImage = null;
+                      });
+                    }
                   },
                 ),
                 const SizedBox(width: 20),

@@ -15,28 +15,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => MaterialApp(
-      home: const StartPage(),
-      onGenerateRoute: (final RouteSettings settings) {
-        if (settings.name == '/camera') {
-          return MaterialPageRoute<Object?>(
-            maintainState: false,
-            builder: (final BuildContext context) => const CameraPage(),
-          );
-        } else if (settings.name == '/qr') {
-          final String? qrCode = settings.arguments as String?;
-          return MaterialPageRoute<Object?>(
-            maintainState: false,
-            builder:
-                (final BuildContext context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
-          );
-        } else {
-          return MaterialPageRoute<Object?>(
-            maintainState: false,
-            builder: (final BuildContext context) => const StartPage(),
-          );
-        }
-      },
-    );
+    home: const StartPage(),
+    onGenerateRoute: (final RouteSettings settings) {
+      if (settings.name == '/camera') {
+        return MaterialPageRoute<Object?>(
+          maintainState: false,
+          builder: (final BuildContext context) => const CameraPage(),
+        );
+      } else if (settings.name == '/qr') {
+        final String? qrCode = settings.arguments as String?;
+        return MaterialPageRoute<Object?>(
+          maintainState: false,
+          builder:
+              (final BuildContext context) =>
+                  QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+        );
+      } else {
+        return MaterialPageRoute<Object?>(
+          maintainState: false,
+          builder: (final BuildContext context) => const StartPage(),
+        );
+      }
+    },
+  );
 }
 
 class StartPage extends StatelessWidget {
@@ -44,19 +45,19 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => CustomWillPopScope(
-      onWillPop: false,
-      action: () {},
-      child: Scaffold(
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await Navigator.pushNamed(context, '/camera');
-            },
-            child: const Text('Start Camera'),
-          ),
+    onWillPop: false,
+    action: () {},
+    child: Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await Navigator.pushNamed(context, '/camera');
+          },
+          child: const Text('Start Camera'),
         ),
       ),
-    );
+    ),
+  );
 }
 
 class CameraPage extends StatefulWidget {
@@ -116,12 +117,11 @@ class _CameraPageState extends State<CameraPage> {
     });
   }
 
-  final CameraImageListenerWrapper _cameraImageListenerWrapper = CameraImageListenerWrapper();
+  final CameraImageListenerWrapper _cameraImageListenerWrapper =
+      CameraImageListenerWrapper();
+
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerIosPlugin.initialize(
-      FlashState.enabled,
-      0.5,
-    );
+    await _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
     final double minZoom =
         await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
     final double maxZoom =
@@ -132,13 +132,17 @@ class _CameraPageState extends State<CameraPage> {
         await _nativeCameraControllerIosPlugin.getFlashStatus();
 
     CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
-    _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((final Uint8List image) {
+    _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
+      final Uint8List image,
+    ) {
       setState(() {
         _currentStreamedImage = image;
       });
     });
 
-    _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((final String? qrCode) {
+    _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((
+      final String? qrCode,
+    ) {
       if (qrCode != null) {
         onQrCodeAvailable(qrCode);
       }
@@ -171,109 +175,110 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   Widget build(final BuildContext context) => CustomWillPopScope(
-      onWillPop: true,
-      action: () async {
-        await Navigator.pushNamed(context, '/');
-      },
-      child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.transparent,
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: BackButton(
-              onPressed: () async {
-                await Navigator.pushNamed(context, '/');
-              },
-            ),
-          ),
-        ),
-        body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('Running on: $_platformVersion\n'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                      _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
-                      color: _isFlashEnabled ? Colors.green : Colors.grey,
-                      size: 30,
-                    ),
-                    onPressed: _toggleFlash,
-                  ),
-                  const SizedBox(width: 20),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.picture_in_picture_rounded,
-                      color: Colors.green,
-                      size: 30,
-                    ),
-                    onPressed: () async {
-                      final Uint8List? image =
-                          await _nativeCameraControllerIosPlugin
-                              .takePicture();
-                      setState(() {
-                        _currentCapturedImage = image;
-                      });
-                      await Future<Object?>.delayed(const Duration(seconds: 2));
-                      setState(() {
-                        _currentCapturedImage = null;
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 20),
-                  const Text('Zoom:'),
-                  Slider(
-                    value: _zoomLevel,
-                    min: _minZoomLevel,
-                    max: _maxZoomLevel,
-                    onChanged: _setZoomLevel,
-                  ),
-                ],
-              ),
-              Center(
-                child: SizedBox(
-                  width: 250,
-                  height: 250,
-                  child: _nativeCameraControllerIosPlugin.getCameraView(),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  if (_currentStreamedImage != null)
-                    SizedBox(
-                      width: 150,
-                      height: 150,
-                      child: Image.memory(
-                        _currentStreamedImage!,
-                        gaplessPlayback: true,
-                      ),
-                    )
-                  else
-                    const SizedBox.shrink(),
-                  const SizedBox(width: 20),
-                  if (_currentCapturedImage != null)
-                    SizedBox(
-                      width: 150,
-                      height: 150,
-                      child: Image.memory(
-                        _currentCapturedImage!,
-                        gaplessPlayback: true,
-                      ),
-                    )
-                  else
-                    const SizedBox.shrink(),
-                ],
-              ),
-            ],
+    onWillPop: true,
+    action: () async {
+      await Navigator.pushNamed(context, '/');
+    },
+    child: Scaffold(
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: BackButton(
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/');
+            },
           ),
         ),
       ),
-    );
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Running on: $_platformVersion\n'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
+                    color: _isFlashEnabled ? Colors.green : Colors.grey,
+                    size: 30,
+                  ),
+                  onPressed: _toggleFlash,
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: const Icon(
+                    Icons.picture_in_picture_rounded,
+                    color: Colors.green,
+                    size: 30,
+                  ),
+                  onPressed: () async {
+                    final Uint8List? image =
+                        await _nativeCameraControllerIosPlugin.takePicture();
+                    setState(() {
+                      _currentCapturedImage = image;
+                    });
+                    await Future<Object?>.delayed(const Duration(seconds: 2));
+                    if (mounted) {
+                      setState(() {
+                        _currentCapturedImage = null;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(width: 20),
+                const Text('Zoom:'),
+                Slider(
+                  value: _zoomLevel,
+                  min: _minZoomLevel,
+                  max: _maxZoomLevel,
+                  onChanged: _setZoomLevel,
+                ),
+              ],
+            ),
+            Center(
+              child: SizedBox(
+                width: 250,
+                height: 250,
+                child: _nativeCameraControllerIosPlugin.getCameraView(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                if (_currentStreamedImage != null)
+                  SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Image.memory(
+                      _currentStreamedImage!,
+                      gaplessPlayback: true,
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
+                const SizedBox(width: 20),
+                if (_currentCapturedImage != null)
+                  SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Image.memory(
+                      _currentCapturedImage!,
+                      gaplessPlayback: true,
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   void onImageAvailable(final Uint8List image) {
     setState(() {
@@ -301,25 +306,25 @@ class QRCodePage extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => CustomWillPopScope(
-      onWillPop: true,
-      action: () async {
-        await Navigator.pushNamed(context, '/camera');
-      },
-      child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.transparent,
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: BackButton(
-              onPressed: () async {
-                await Navigator.pushNamed(context, '/camera');
-              },
-            ),
+    onWillPop: true,
+    action: () async {
+      await Navigator.pushNamed(context, '/camera');
+    },
+    child: Scaffold(
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: BackButton(
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/camera');
+            },
           ),
         ),
-        body: Center(child: Text('QR Code: $qrCode')),
       ),
-    );
+      body: Center(child: Text('QR Code: $qrCode')),
+    ),
+  );
 }
 
 class CustomWillPopScope extends StatelessWidget {
