@@ -15,7 +15,7 @@ class NativeCameraControllerIOS extends NativeCameraControllerPlatform {
 
   @visibleForTesting
   /// The method channel used to interact with the native platform.
-  final methodChannel = const MethodChannel('native_camera_controller_ios');
+  final MethodChannel methodChannel = const MethodChannel('native_camera_controller_ios');
 
   @override
   Widget getCameraView() => const UiKitView(
@@ -30,7 +30,7 @@ class NativeCameraControllerIOS extends NativeCameraControllerPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>(
+    final String? version = await methodChannel.invokeMethod<String>(
       'getPlatformVersion',
     );
     return version;

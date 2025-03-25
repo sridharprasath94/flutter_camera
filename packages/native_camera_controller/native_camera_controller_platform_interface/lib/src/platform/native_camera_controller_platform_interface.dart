@@ -30,12 +30,12 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
   /// Platform-specific plugins should set this with their own platform-specific
   /// class that extends [NativeCameraControllerPlatform] when
   ///  they register themselves.
-  static set instance(NativeCameraControllerPlatform instance) {
+  static set instance(final NativeCameraControllerPlatform instance) {
     PlatformInterface.verify(instance, _token);
     _instance = instance;
   }
 
-  final _cameraApi = CameraApi();
+  final CameraApi _cameraApi = CameraApi();
 
 
   /// Return the current platform version.
@@ -61,8 +61,8 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
 
   /// Set the flash status.
   Future<void> initialize(
-    FlashState flashState,
-    double flashTorchLevel,
+    final FlashState flashState,
+    final double flashTorchLevel,
   ) =>
       _cameraApi.initialize(
         flashState,
@@ -70,11 +70,11 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
       );
 
   /// Get the flash status.
-  Future<void> setFlashStatus({required bool isActive}) =>
+  Future<void> setFlashStatus({required final bool isActive}) =>
       _cameraApi.setFlashStatus(isActive: isActive);
 
   /// Set the zoom level.
-  Future<void> setZoomLevel({required double zoomLevel}) =>
+  Future<void> setZoomLevel({required final double zoomLevel}) =>
       _cameraApi.setZoomLevel(zoomLevel: zoomLevel);
 
   /// Get the zoom level.

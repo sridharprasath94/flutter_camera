@@ -15,7 +15,7 @@ import 'package:native_camera_controller_android/native_camera_controller_androi
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
+  testWidgets('getPlatformVersion test', (final WidgetTester tester) async {
     final NativeCameraControllerAndroid plugin = NativeCameraControllerAndroid();
     final String? version = await plugin.getPlatformVersion();
     // The version string depends on the host platform running the test, so

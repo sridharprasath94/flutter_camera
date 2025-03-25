@@ -15,7 +15,7 @@ import 'package:native_camera_controller_ios/native_camera_controller_ios.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
+  testWidgets('getPlatformVersion test', (final WidgetTester tester) async {
     final NativeCameraControllerIOS plugin = NativeCameraControllerIOS();
     final String? version = await plugin.getPlatformVersion();
     // The version string depends on the host platform running the test, so

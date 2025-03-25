@@ -17,24 +17,24 @@ class CameraImageListenerWrapper implements CameraImageListener {
   Stream<String?> get qrCodeStream => _qrCodeStreamController.stream;
 
   @override
-  void onImageAvailable(Uint8List image) {
+  void onImageAvailable(final Uint8List image) {
     _imageStreamController.add(image);
   }
 
   @override
-  void onQrCodeAvailable(String? qrCode) {
+  void onQrCodeAvailable(final String? qrCode) {
     _qrCodeStreamController.add(qrCode);
   }
 
   /// Disposes the [StreamController]s
-  void dispose() {
-    _imageStreamController.close();
-    _qrCodeStreamController.close();
+  Future<void> dispose() async {
+    await _imageStreamController.close();
+    await _qrCodeStreamController.close();
     debugPrint('CameraImageListenerWrapper disposed');
   }
 
   /// Sets up the [CameraImageListenerWrapper] with the [CameraImageListener]
-  static void setUp(CameraImageListenerWrapper listener) {
+  static void setUp(final CameraImageListenerWrapper listener) {
     CameraImageListener.setUp(listener);
   }
 }

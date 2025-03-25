@@ -71,18 +71,20 @@ class MobileCameraController {
 
   /// Dispose of the camera controller.
   Future<void> dispose() async {
-    if (_isDisposed) return;
+    if (_isDisposed) {
+      return;
+    }
     _isDisposed = true;
     await _imageSubscription?.cancel();
     await _qrCodeSubscription?.cancel();
-    _cameraImageListenerWrapper.dispose();
+    await _cameraImageListenerWrapper.dispose();
     await _platform.dispose();
   }
 
   /// Initialize the camera controller.
   Future<CameraParameters> initialize(
-    FlashStatus flashStatus, {
-    double flashLevel = 1,
+    final FlashStatus flashStatus, {
+    final double flashLevel = 1,
   }) async {
     await _platform.initialize(
       flashStatus == FlashStatus.on ? FlashState.enabled : FlashState.disabled,
@@ -98,14 +100,14 @@ class MobileCameraController {
   }
 
   /// Set the flash status.
-  Future<void> setFlashStatus({required bool isActive}) =>
+  Future<void> setFlashStatus({required final bool isActive}) =>
       _platform.setFlashStatus(isActive: isActive);
 
   /// Get the flash status.
   Future<bool> getFlashStatus() => _platform.getFlashStatus();
 
   /// Set the zoom level.
-  Future<void> setZoomLevel({required double zoomLevel}) =>
+  Future<void> setZoomLevel({required final double zoomLevel}) =>
       _platform.setZoomLevel(zoomLevel: zoomLevel);
 
   /// Get the zoom level.
@@ -121,13 +123,13 @@ class MobileCameraController {
   void setUpListener() {
     CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
-      Uint8List image,
+      final Uint8List image,
     ) {
       debugPrint('Image received: ${image.length}');
     });
 
     _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((
-      String? qrCode,
+      final String? qrCode,
     ) {
       debugPrint('QR Code received: $qrCode');
     });

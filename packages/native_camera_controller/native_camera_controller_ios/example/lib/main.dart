@@ -1,8 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:native_camera_controller_ios/native_camera_controller_ios.dart';
 import 'package:native_camera_controller_platform_interface/native_camera_controller_platform_interface.dart';
@@ -15,53 +14,49 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: StartPage(),
-      onGenerateRoute: (settings) {
+  Widget build(final BuildContext context) => MaterialApp(
+      home: const StartPage(),
+      onGenerateRoute: (final RouteSettings settings) {
         if (settings.name == '/camera') {
-          return MaterialPageRoute(
+          return MaterialPageRoute<Object?>(
             maintainState: false,
-            builder: (context) => CameraPage(),
+            builder: (final BuildContext context) => const CameraPage(),
           );
         } else if (settings.name == '/qr') {
           final String? qrCode = settings.arguments as String?;
-          return MaterialPageRoute(
+          return MaterialPageRoute<Object?>(
             maintainState: false,
             builder:
-                (context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+                (final BuildContext context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
           );
         } else {
-          return MaterialPageRoute(
+          return MaterialPageRoute<Object?>(
             maintainState: false,
-            builder: (context) => StartPage(),
+            builder: (final BuildContext context) => const StartPage(),
           );
         }
       },
     );
-  }
 }
 
 class StartPage extends StatelessWidget {
   const StartPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return CustomWillPopScope(
+  Widget build(final BuildContext context) => CustomWillPopScope(
       onWillPop: false,
       action: () {},
       child: Scaffold(
         body: Center(
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/camera');
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/camera');
             },
             child: const Text('Start Camera'),
           ),
         ),
       ),
     );
-  }
 }
 
 class CameraPage extends StatefulWidget {
@@ -74,9 +69,9 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   String _platformVersion = 'Unknown';
   bool _isFlashEnabled = false;
-  double _zoomLevel = 0.0;
-  double _minZoomLevel = 0.0;
-  double _maxZoomLevel = 1.0;
+  double _zoomLevel = 0;
+  double _minZoomLevel = 0;
+  double _maxZoomLevel = 1;
 
   final NativeCameraControllerPlatform _nativeCameraControllerAndroidPlugin =
       NativeCameraControllerIOS();
@@ -87,19 +82,19 @@ class _CameraPageState extends State<CameraPage> {
   StreamSubscription<String?>? _qrCodeSubscription;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     debugPrint('Initializing camera controller');
-    initPlatformState();
-    _initializeCamera();
+    await initPlatformState();
+    await _initializeCamera();
   }
 
   @override
-  void dispose() {
-    _imageSubscription?.cancel();
-    _qrCodeSubscription?.cancel();
-    _cameraImageListenerWrapper.dispose();
-    _nativeCameraControllerAndroidPlugin.dispose();
+  Future<void> dispose() async {
+    await _imageSubscription?.cancel();
+    await _qrCodeSubscription?.cancel();
+    await _cameraImageListenerWrapper.dispose();
+    await _nativeCameraControllerAndroidPlugin.dispose();
     super.dispose();
   }
 
@@ -113,7 +108,9 @@ class _CameraPageState extends State<CameraPage> {
       platformVersion = 'Failed to get platform version.';
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       _platformVersion = platformVersion;
@@ -126,23 +123,23 @@ class _CameraPageState extends State<CameraPage> {
       FlashState.enabled,
       0.5,
     );
-    double minZoom =
+    final double minZoom =
         await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
-    double maxZoom =
+    final double maxZoom =
         await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
-    double currentZoom =
+    final double currentZoom =
         await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
-    bool flashStatus =
+    final bool flashStatus =
         await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
     CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
-    _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((image) {
+    _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((final Uint8List image) {
       setState(() {
         _currentStreamedImage = image;
       });
     });
 
-    _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((qrCode) {
+    _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((final String? qrCode) {
       if (qrCode != null) {
         onQrCodeAvailable(qrCode);
       }
@@ -156,8 +153,8 @@ class _CameraPageState extends State<CameraPage> {
     });
   }
 
-  void _toggleFlash() async {
-    bool newFlashStatus = !_isFlashEnabled;
+  Future<void> _toggleFlash() async {
+    final bool newFlashStatus = !_isFlashEnabled;
     await _nativeCameraControllerAndroidPlugin.setFlashStatus(
       isActive: newFlashStatus,
     );
@@ -166,7 +163,7 @@ class _CameraPageState extends State<CameraPage> {
     });
   }
 
-  void _setZoomLevel(double value) async {
+  Future<void> _setZoomLevel(final double value) async {
     await _nativeCameraControllerAndroidPlugin.setZoomLevel(zoomLevel: value);
     setState(() {
       _zoomLevel = value;
@@ -174,11 +171,10 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return CustomWillPopScope(
+  Widget build(final BuildContext context) => CustomWillPopScope(
       onWillPop: true,
-      action: () {
-        Navigator.pushNamed(context, '/');
+      action: () async {
+        await Navigator.pushNamed(context, '/');
       },
       child: Scaffold(
         bottomNavigationBar: BottomAppBar(
@@ -186,8 +182,8 @@ class _CameraPageState extends State<CameraPage> {
           child: Align(
             alignment: Alignment.bottomLeft,
             child: BackButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/');
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/');
               },
             ),
           ),
@@ -195,11 +191,11 @@ class _CameraPageState extends State<CameraPage> {
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Text('Running on: $_platformVersion\n'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: Icon(
                       _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
@@ -210,23 +206,23 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   const SizedBox(width: 20),
                   IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.picture_in_picture_rounded,
                       color: Colors.green,
                       size: 30,
                     ),
-                    onPressed: (() async {
-                      Uint8List? image =
+                    onPressed: () async {
+                      final Uint8List? image =
                           await _nativeCameraControllerAndroidPlugin
                               .takePicture();
                       setState(() {
                         _currentCapturedImage = image;
                       });
-                      await Future.delayed(const Duration(seconds: 2));
+                      await Future<Object?>.delayed(const Duration(seconds: 2));
                       setState(() {
                         _currentCapturedImage = null;
                       });
-                    }),
+                    },
                   ),
                   const SizedBox(width: 20),
                   const Text('Zoom:'),
@@ -248,7 +244,7 @@ class _CameraPageState extends State<CameraPage> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   if (_currentStreamedImage != null)
                     SizedBox(
                       width: 150,
@@ -259,7 +255,7 @@ class _CameraPageState extends State<CameraPage> {
                       ),
                     )
                   else
-                    SizedBox.shrink(),
+                    const SizedBox.shrink(),
                   const SizedBox(width: 20),
                   if (_currentCapturedImage != null)
                     SizedBox(
@@ -271,7 +267,7 @@ class _CameraPageState extends State<CameraPage> {
                       ),
                     )
                   else
-                    SizedBox.shrink(),
+                    const SizedBox.shrink(),
                 ],
               ),
             ],
@@ -279,9 +275,8 @@ class _CameraPageState extends State<CameraPage> {
         ),
       ),
     );
-  }
 
-  void onImageAvailable(Uint8List image) {
+  void onImageAvailable(final Uint8List image) {
     setState(() {
       _currentStreamedImage = image;
     });
@@ -289,11 +284,11 @@ class _CameraPageState extends State<CameraPage> {
 
   bool _isNavigatingToQR = false;
 
-  void onQrCodeAvailable(String? qrCode) {
+  Future<void> onQrCodeAvailable(final String? qrCode) async {
     if (qrCode != null && !_isNavigatingToQR) {
       debugPrint('QR Code: $qrCode. Navigating to QR code view');
       _isNavigatingToQR = true;
-      Navigator.pushNamed(context, '/qr', arguments: qrCode).then((_) {
+      await Navigator.pushNamed(context, '/qr', arguments: qrCode).then((_) {
         _isNavigatingToQR = false;
       });
     }
@@ -306,11 +301,10 @@ class QRCodePage extends StatelessWidget {
   const QRCodePage({required this.qrCode, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return CustomWillPopScope(
+  Widget build(final BuildContext context) => CustomWillPopScope(
       onWillPop: true,
-      action: () {
-        Navigator.pushNamed(context, '/camera');
+      action: () async {
+        await Navigator.pushNamed(context, '/camera');
       },
       child: Scaffold(
         bottomNavigationBar: BottomAppBar(
@@ -318,8 +312,8 @@ class QRCodePage extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomLeft,
             child: BackButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/camera');
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/camera');
               },
             ),
           ),
@@ -327,7 +321,6 @@ class QRCodePage extends StatelessWidget {
         body: Center(child: Text('QR Code: $qrCode')),
       ),
     );
-  }
 }
 
 class CustomWillPopScope extends StatelessWidget {
@@ -343,10 +336,10 @@ class CustomWillPopScope extends StatelessWidget {
   final VoidCallback action;
 
   @override
-  Widget build(BuildContext context) =>
+  Widget build(final BuildContext context) =>
       Platform.isIOS
           ? GestureDetector(
-            onPanEnd: (DragEndDetails details) {
+            onPanEnd: (final DragEndDetails details) {
               if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
                 action();
               }
@@ -355,7 +348,7 @@ class CustomWillPopScope extends StatelessWidget {
           )
           : PopScope(
             canPop: false,
-            onPopInvokedWithResult: (bool didPop, Object? result) {
+            onPopInvokedWithResult: (final bool didPop, final Object? result) {
               if (onWillPop) {
                 action();
               }

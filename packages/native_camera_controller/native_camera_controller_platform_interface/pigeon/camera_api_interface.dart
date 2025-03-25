@@ -26,13 +26,13 @@ abstract class CameraApi {
   void dispose();
 
   @async
-  void initialize(FlashState flashState,
-      double flashTorchLevel,);
+  void initialize(final FlashState flashState,
+      final double flashTorchLevel,);
 
   @async
   Uint8List takePicture();
 
-  void setZoomLevel({required double zoomLevel});
+  void setZoomLevel({required final double zoomLevel});
 
   double getCurrentZoomLevel();
 
@@ -40,7 +40,7 @@ abstract class CameraApi {
 
   double getMaximumZoomLevel();
 
-  void setFlashStatus({required bool isActive});
+  void setFlashStatus({required final bool isActive});
 
   bool getFlashStatus();
 
@@ -49,7 +49,7 @@ abstract class CameraApi {
 
 @FlutterApi()
 abstract class CameraImageListener {
-  void onImageAvailable(Uint8List image);
+  void onImageAvailable(final Uint8List image);
 
-  void onQrCodeAvailable(String? qrCode);
+  void onQrCodeAvailable(final String? qrCode);
 }

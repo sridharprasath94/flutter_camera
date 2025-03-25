@@ -13,14 +13,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - "**/enums.dart"
-    - "**.inject.dart"
-    - "**.inject.summary"
-    - "**.g.dart"
-    - "**.swagger.dart"
-    - "**.chopper.dart"
-    - "**.openapi.dart"
-    - "**/client_mapping.dart"
-    - "**/generate_ioss_camera_constants.dart"
+    - "**/pigeon.dart"
 
 linter:
   # The lint rules applied to this project can be customized in the
