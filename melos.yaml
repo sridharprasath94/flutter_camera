@@ -4,9 +4,29 @@ packages:
   - apps/**
   - packages/**
 
+command:
+  bootstrap:
+    hooks:
+      post: |
+        melos exec -- "if [[ \$(pwd) =~ 'native_camera_controller_android/example' || \$(pwd) =~ 'native_camera_controller_ios/example' ]]; then echo 'include: ../../../../analysis_options.yaml' > analysis_options.yaml; else echo 'include: ../../../analysis_options.yaml' > analysis_options.yaml; fi"
+
 scripts:
   analyze:
-    exec: dart analyze .
+    run: melos exec -- "dart analyze ."
+    description: Run Dart analysis on all packages.
+
   build:
     run: melos exec --depends-on=build_runner -- "dart run build_runner build -d"
     description: Build all generated files for Dart & Flutter packages in this project.
+
+  format:
+    run: melos exec -- "dart format ."
+    description: Format all Dart files in the workspace.
+
+  clean:
+    run: melos exec -- "flutter clean"
+    description: Clean all packages.
+
+  upgrade:
+    run: melos exec -- "flutter pub upgrade"
+    description: Upgrade dependencies in all packages.
