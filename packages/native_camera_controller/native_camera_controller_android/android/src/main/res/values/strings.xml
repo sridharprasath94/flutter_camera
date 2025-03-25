@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared preference values -->
+    <string name="shared_preferences">sharedPrefs</string>
+    <string name="secret_screen_flash">Toggle flash</string>
+    <string name="secret_screen_score">Show score</string>
+    <string name="home_screen_spinner_position">spinnerPosition</string>
+    <string name="camera_scan_screen_overlay_option">overlayOption</string>
+    <string name="select_collection_screen_cid">cid</string>
+</resources>
