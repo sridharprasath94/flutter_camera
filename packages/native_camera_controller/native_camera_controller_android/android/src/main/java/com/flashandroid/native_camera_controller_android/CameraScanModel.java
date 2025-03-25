@@ -20,8 +20,6 @@ import com.flashandroid.sdk.ui.CameraView;
 
 import java.lang.ref.WeakReference;
 
-import io.flutter.plugin.common.BinaryMessenger;
-
 public class CameraScanModel extends ViewModel {
     public MutableLiveData<Exception> getExceptionObserver() {
         return exceptionObserver;

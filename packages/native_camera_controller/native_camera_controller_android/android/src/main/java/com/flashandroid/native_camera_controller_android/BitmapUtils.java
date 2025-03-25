@@ -6,16 +6,12 @@ import java.io.ByteArrayOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import android.graphics.Bitmap;
 import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class BitmapUtils {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final static String TAG = "NATIVE_CAMERA_CONTROLLER_ANDROID_CAMERA";
+
     public static void convertBitmapToByteArrayAsync(Bitmap bitmap, CameraApiInterface.Result<byte[]> result) {
         executor.execute(() -> {
             if (bitmap == null) {
