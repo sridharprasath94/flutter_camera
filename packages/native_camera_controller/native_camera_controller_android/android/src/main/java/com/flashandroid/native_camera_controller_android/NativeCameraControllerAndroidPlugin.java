@@ -90,7 +90,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
                     @NonNull
                     @Override
                     public PlatformView create(Context context, int viewId, @Nullable Object args) {
-                        Log.d(TAG, "Calling Mddi flutter view");
+                        Log.d(TAG, "Building android native camera view");
                         return new PlatformView() {
                             @NonNull
                             @Override
@@ -100,6 +100,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
 
                             @Override
                             public void dispose() {
+                                Log.d(TAG, "Disposing camera view");
                                 disposeView();
                             }
                         };
@@ -246,7 +247,6 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     }
 
     private void setupCamera() {
-
         cameraScanModel.getStreamBitmapObserver().observe((LifecycleOwner) activity, bitmap -> {
             Log.d(TAG, "Bitmap obtained");
         });
@@ -272,5 +272,8 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     @Override
     public void onDetachedFromActivity() {
         Log.d(TAG, "Detaching activity");
+        disposeView();
+        activity = null;
+        activityPluginBinding = null;
     }
 }

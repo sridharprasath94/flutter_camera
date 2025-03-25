@@ -20,15 +20,22 @@ class MyApp extends StatelessWidget {
       home: StartPage(),
       onGenerateRoute: (settings) {
         if (settings.name == '/camera') {
-          return MaterialPageRoute(builder: (context) => CameraPage());
+          return MaterialPageRoute(
+            maintainState: false,
+            builder: (context) => CameraPage(),
+          );
         } else if (settings.name == '/qr') {
           final String? qrCode = settings.arguments as String?;
           return MaterialPageRoute(
+            maintainState: false,
             builder:
                 (context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
           );
         } else {
-          return MaterialPageRoute(builder: (context) => StartPage());
+          return MaterialPageRoute(
+            maintainState: false,
+            builder: (context) => StartPage(),
+          );
         }
       },
     );
@@ -40,13 +47,17 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/camera');
-          },
-          child: const Text('Start Camera'),
+    return CustomWillPopScope(
+      onWillPop: false,
+      action: () {},
+      child: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/camera');
+            },
+            child: const Text('Start Camera'),
+          ),
         ),
       ),
     );
@@ -69,7 +80,7 @@ class _CameraPageState extends State<CameraPage>
   double _maxZoomLevel = 1.0;
 
   final NativeCameraControllerPlatform _nativeCameraControllerAndroidPlugin =
-  NativeCameraControllerAndroid();
+      NativeCameraControllerAndroid();
 
   Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
@@ -93,7 +104,7 @@ class _CameraPageState extends State<CameraPage>
     try {
       platformVersion =
           await _nativeCameraControllerAndroidPlugin.getPlatformVersion() ??
-              'Unknown platform version';
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -106,14 +117,18 @@ class _CameraPageState extends State<CameraPage>
   }
 
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerAndroidPlugin.initialize(FlashState.enabled, 0.5);
-    bool flashStatus = await _nativeCameraControllerAndroidPlugin.getFlashStatus();
+    await _nativeCameraControllerAndroidPlugin.initialize(
+      FlashState.disabled,
+      0.5,
+    );
+    bool flashStatus =
+        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
     double minZoom =
-    await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
     double maxZoom =
-    await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
     double currentZoom =
-    await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
 
     CameraImageListener.setUp(this);
 
@@ -145,7 +160,7 @@ class _CameraPageState extends State<CameraPage>
   @override
   Widget build(BuildContext context) {
     return CustomWillPopScope(
-      onWillPop: true,
+      onWillPop: false,
       action: () {
         Navigator.pushNamed(context, '/');
       },
@@ -184,7 +199,8 @@ class _CameraPageState extends State<CameraPage>
                   ),
                   onPressed: (() async {
                     Uint8List? image =
-                    await _nativeCameraControllerAndroidPlugin.takePicture();
+                        await _nativeCameraControllerAndroidPlugin
+                            .takePicture();
                     setState(() {
                       _currentCapturedImage = image;
                     });
@@ -286,14 +302,11 @@ class QRCodePage extends StatelessWidget {
             ),
           ),
         ),
-        body: Center(
-          child: Text('QR Code: $qrCode'),
-        ),
+        body: Center(child: Text('QR Code: $qrCode')),
       ),
     );
   }
 }
-
 
 class CustomWillPopScope extends StatelessWidget {
   const CustomWillPopScope({
@@ -308,25 +321,23 @@ class CustomWillPopScope extends StatelessWidget {
   final VoidCallback action;
 
   @override
-  Widget build(BuildContext context) => Platform.isIOS
-      ? GestureDetector(
-    onPanEnd: (DragEndDetails details) {
-      if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
-        action();
-      }
-    },
-    child: PopScope(
-      canPop: false,
-      child: child,
-    ),
-  )
-      : PopScope(
-    canPop: false,
-    onPopInvokedWithResult: (bool didPop, Object? result) {
-      if (onWillPop) {
-        action();
-      }
-    },
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      Platform.isIOS
+          ? GestureDetector(
+            onPanEnd: (DragEndDetails details) {
+              if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+                action();
+              }
+            },
+            child: PopScope(canPop: false, child: child),
+          )
+          : PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (bool didPop, Object? result) {
+              if (onWillPop) {
+                action();
+              }
+            },
+            child: child,
+          );
 }
