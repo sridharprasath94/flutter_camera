@@ -220,7 +220,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
 
             @Override
             public void setZoomLevel(@NonNull Double zoomLevel) {
-                cameraView.changeZoomLevel(zoomLevel.intValue());
+                activity.runOnUiThread(() -> cameraView.changeZoomLevel(zoomLevel.intValue()));
             }
 
             @NonNull
@@ -244,7 +244,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
             @Override
             public void setFlashStatus(@NonNull Boolean isActive) {
                 Log.d(TAG, "Setting flash status to " + isActive);
-                cameraView.changeFlashState(isActive);
+                activity.runOnUiThread(() -> cameraView.changeFlashState(isActive));
             }
 
             @NonNull
