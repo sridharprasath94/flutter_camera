@@ -16,14 +16,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: StartPage(),
-      routes: {
-        '/camera': (context) => CameraPage(),
-        '/qr': (context) => QRCodePage(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/camera') {
+          return MaterialPageRoute(builder: (context) => CameraPage());
+        } else if (settings.name == '/qr') {
+          final String? qrCode = settings.arguments as String?;
+          return MaterialPageRoute(
+            builder:
+                (context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+          );
+        } else {
+          return MaterialPageRoute(builder: (context) => StartPage());
+        }
       },
     );
   }
 }
-
 
 class StartPage extends StatelessWidget {
   const StartPage({super.key});
@@ -31,7 +39,6 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Start')),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
@@ -44,7 +51,6 @@ class StartPage extends StatelessWidget {
   }
 }
 
-
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
 
@@ -52,7 +58,8 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage> implements CameraImageListener {
+class _CameraPageState extends State<CameraPage>
+    implements CameraImageListener {
   String _platformVersion = 'Unknown';
   bool _isFlashEnabled = false;
   double _zoomLevel = 0.0;
@@ -64,7 +71,6 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
 
   Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
-  String? _qrCode;
 
   @override
   void initState() {
@@ -78,6 +84,7 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
     _nativeCameraControllerIosPlugin.dispose();
     super.dispose();
   }
+
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
@@ -137,6 +144,17 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('Camera with Controls')),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: BackButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/');
+              },
+            ),
+          ),
+        ),
         body: Column(
           children: [
             Text('Running on: $_platformVersion\n'),
@@ -211,11 +229,6 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
               )
             else
               SizedBox.shrink(),
-            const SizedBox(height: 8),
-            if (_qrCode != null)
-              Text('QR Code: $_qrCode')
-            else
-              SizedBox.shrink(),
           ],
         ),
       ),
@@ -229,44 +242,41 @@ class _CameraPageState extends State<CameraPage> implements CameraImageListener 
     });
   }
 
+  bool _isNavigatingToQR = false;
+
   @override
   void onQrCodeAvailable(String? qrCode) {
-    setState(() {
-      _qrCode = qrCode;
-    });
-
-    if(qrCode != null) {
-      Navigator.pushNamed(
-        context,
-        '/qr',
-        arguments: qrCode,
-      );
+    if (qrCode != null && !_isNavigatingToQR) {
+      debugPrint('QR Code: $qrCode. Navigating to QR code view');
+      _isNavigatingToQR = true;
+      Navigator.pushNamed(context, '/qr', arguments: qrCode).then((_) {
+        _isNavigatingToQR = false;
+      });
     }
   }
 }
 
 class QRCodePage extends StatelessWidget {
-  const QRCodePage({super.key});
+  final String qrCode;
+
+  const QRCodePage({required this.qrCode, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final String? qrCode = ModalRoute.of(context)?.settings.arguments as String?;
     return Scaffold(
-      appBar: AppBar(title: const Text('QR Code Scanned')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('QR Code: ${qrCode ?? 'No QR code scanned'}'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/camera');
-              },
-              child: const Text('Back to Camera'),
-            ),
-          ],
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: BackButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/camera');
+            },
+          ),
         ),
+      ),
+      body: Center(
+        child: Text('QR Code: $qrCode'),
       ),
     );
   }
