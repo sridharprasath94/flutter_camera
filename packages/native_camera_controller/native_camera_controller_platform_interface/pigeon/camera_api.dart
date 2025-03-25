@@ -3,7 +3,7 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(
   PigeonOptions(
     javaOut:
-    '../native_camera_controller_android/android/src/main/java/com/flashandroid/camera/CameraApi.java',
+    '../native_camera_controller_android/android/src/main/java/com/flashandroid/native_camera_controller_android/CameraApi.java',
     javaOptions: JavaOptions(
       package: 'com.flashandroid.camera',
       useGeneratedAnnotation: false,
