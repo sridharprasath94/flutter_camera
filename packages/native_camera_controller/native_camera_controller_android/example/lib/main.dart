@@ -49,8 +49,15 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomWillPopScope(
       onWillPop: false,
-      action: () {},
+      action: SystemNavigator.pop,
       child: Scaffold(
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: BackButton(onPressed: SystemNavigator.pop),
+          ),
+        ),
         body: Center(
           child: ElevatedButton(
             onPressed: () {
@@ -128,7 +135,7 @@ class _CameraPageState extends State<CameraPage>
     double currentZoom =
         await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
     bool flashStatus =
-    await _nativeCameraControllerAndroidPlugin.getFlashStatus();
+        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
     CameraImageListener.setUp(this);
 
@@ -160,7 +167,7 @@ class _CameraPageState extends State<CameraPage>
   @override
   Widget build(BuildContext context) {
     return CustomWillPopScope(
-      onWillPop: false,
+      onWillPop: true,
       action: () {
         Navigator.pushNamed(context, '/');
       },
@@ -176,82 +183,90 @@ class _CameraPageState extends State<CameraPage>
             ),
           ),
         ),
-        body: Column(
-          children: [
-            Text('Running on: $_platformVersion\n'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
-                    color: _isFlashEnabled ? Colors.green : Colors.grey,
-                    size: 30,
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Running on: $_platformVersion\n'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _isFlashEnabled ? Icons.flash_on : Icons.flash_off,
+                      color: _isFlashEnabled ? Colors.green : Colors.grey,
+                      size: 30,
+                    ),
+                    onPressed: _toggleFlash,
                   ),
-                  onPressed: _toggleFlash,
-                ),
-                const SizedBox(width: 20),
-                IconButton(
-                  icon: Icon(
-                    Icons.picture_in_picture_rounded,
-                    color: Colors.green,
-                    size: 30,
+                  const SizedBox(width: 20),
+                  IconButton(
+                    icon: Icon(
+                      Icons.picture_in_picture_rounded,
+                      color: Colors.green,
+                      size: 30,
+                    ),
+                    onPressed: (() async {
+                      Uint8List? image =
+                          await _nativeCameraControllerAndroidPlugin
+                              .takePicture();
+                      setState(() {
+                        _currentCapturedImage = image;
+                      });
+                      await Future.delayed(const Duration(seconds: 2));
+                      setState(() {
+                        _currentCapturedImage = null;
+                      });
+                    }),
                   ),
-                  onPressed: (() async {
-                    Uint8List? image =
-                        await _nativeCameraControllerAndroidPlugin
-                            .takePicture();
-                    setState(() {
-                      _currentCapturedImage = image;
-                    });
-                    await Future.delayed(const Duration(seconds: 2));
-                    setState(() {
-                      _currentCapturedImage = null;
-                    });
-                  }),
-                ),
-                const SizedBox(width: 20),
-                const Text('Zoom:'),
-                Slider(
-                  value: _zoomLevel,
-                  min: _minZoomLevel,
-                  max: _maxZoomLevel,
-                  onChanged: _setZoomLevel,
-                ),
-              ],
-            ),
-            Center(
-              child: SizedBox(
-                width: 250,
-                height: 250,
-                child: _nativeCameraControllerAndroidPlugin.getCameraView(),
+                  const SizedBox(width: 20),
+                  const Text('Zoom:'),
+                  Slider(
+                    value: _zoomLevel,
+                    min: _minZoomLevel,
+                    max: _maxZoomLevel,
+                    onChanged: _setZoomLevel,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            if (_currentStreamedImage != null)
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.memory(
-                  _currentStreamedImage!,
-                  gaplessPlayback: true,
+              Center(
+                child: SizedBox(
+                  width: 250,
+                  height: 250,
+                  child: _nativeCameraControllerAndroidPlugin.getCameraView(),
                 ),
-              )
-            else
-              SizedBox.shrink(),
-            const SizedBox(height: 8),
-            if (_currentCapturedImage != null)
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.memory(
-                  _currentCapturedImage!,
-                  gaplessPlayback: true,
-                ),
-              )
-            else
-              SizedBox.shrink(),
-          ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_currentStreamedImage != null)
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: Image.memory(
+                        _currentStreamedImage!,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+                  const SizedBox(width: 20),
+                  if (_currentCapturedImage != null)
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: Image.memory(
+                        _currentCapturedImage!,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
