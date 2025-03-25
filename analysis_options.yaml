@@ -13,7 +13,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - "**/enums.dart"
-    - "**/pigeon.dart"
+    - "**/*.pigeon.dart"
 
 linter:
   # The lint rules applied to this project can be customized in the
