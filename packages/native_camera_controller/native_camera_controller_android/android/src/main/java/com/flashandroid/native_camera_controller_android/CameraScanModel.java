@@ -20,6 +20,8 @@ import com.flashandroid.sdk.ui.CameraView;
 
 import java.lang.ref.WeakReference;
 
+import io.flutter.plugin.common.BinaryMessenger;
+
 public class CameraScanModel extends ViewModel {
     public MutableLiveData<Exception> getExceptionObserver() {
         return exceptionObserver;
@@ -40,7 +42,8 @@ public class CameraScanModel extends ViewModel {
     private final MutableLiveData<Bitmap> bitmapStreamObserver = new MutableLiveData<>();
 
     private final MutableLiveData<String> barcodeResultObserver = new MutableLiveData<>();
-    public CameraScanModel(Context context, @NonNull CameraApiInterface.FlashState flashState, @NonNull Double flashTorchLevel){
+
+    public CameraScanModel(Context context, @NonNull CameraApiInterface.FlashState flashState){
         this.contextRef = new WeakReference<>(context);
         this.enableFlash = flashState == CameraApiInterface.FlashState.ENABLED;
     }
@@ -55,10 +58,10 @@ public class CameraScanModel extends ViewModel {
         cameraView.initCameraCapture(cameraParameters, (Activity) this.contextRef.get(), new CameraCallback() {
             @Override
             public void onImageObtained(Bitmap bitmap, String barcodeResult) {
-//                if(bitmap != null) {
-//                    activity.runOnUiThread(() -> bitmapStreamObserver.postValue(bitmap));
-//                }
-//                activity.runOnUiThread(() ->  barcodeResultObserver.postValue(barcodeResult));
+                if(bitmap != null) {
+                    activity.runOnUiThread(() -> bitmapStreamObserver.postValue(bitmap));
+                }
+                activity.runOnUiThread(() ->  barcodeResultObserver.postValue(barcodeResult));
             }
 
             @Override
@@ -67,6 +70,7 @@ public class CameraScanModel extends ViewModel {
             }
         });
         cameraView.changeFlashState(enableFlash);
+        Log.d(TAG, "Camera initialized with flash state: " + enableFlash);
     }
 
     protected void cancelObservers(Activity activity) {

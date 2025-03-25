@@ -118,17 +118,17 @@ class _CameraPageState extends State<CameraPage>
 
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerAndroidPlugin.initialize(
-      FlashState.disabled,
+      FlashState.enabled,
       0.5,
     );
-    bool flashStatus =
-        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
     double minZoom =
         await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
     double maxZoom =
         await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
     double currentZoom =
         await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
+    bool flashStatus =
+    await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
     CameraImageListener.setUp(this);
 

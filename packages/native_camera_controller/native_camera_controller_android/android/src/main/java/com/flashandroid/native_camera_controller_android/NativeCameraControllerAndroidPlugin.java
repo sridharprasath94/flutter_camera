@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +51,8 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     public Activity activity;
     public ActivityPluginBinding activityPluginBinding;
     private CameraViewBinding cameraViewBinding;
-
     private CameraScanModel cameraScanModel;
+    protected CameraApiInterface.CameraImageListener cameraImageListener;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -191,17 +194,28 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
 
             @Override
             public void initialize(@NonNull CameraApiInterface.FlashState flashState, @NonNull Double flashTorchLevel, @NonNull CameraApiInterface.VoidResult result) {
-                cameraScanModel = new CameraScanModel(activity, flashState, flashTorchLevel);
+                Log.d(TAG, "Initializing camera scan model");
+                cameraScanModel = new CameraScanModel(activity, flashState);
                 if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, 50);
                 }
-                activity.runOnUiThread(() -> setupCamera());
-                result.success();
+                activity.runOnUiThread(() -> {
+                    setupCamera();
+                    new Handler(Looper.getMainLooper()).postDelayed(result::success, 500);
+                });
             }
 
             @Override
             public void takePicture(@NonNull CameraApiInterface.Result<byte[]> result) {
-
+                if (cameraView != null) {
+                    Bitmap bitmap = cameraView.captureCurrentImage();
+                    if (bitmap != null) {
+                        BitmapUtils.convertBitmapToByteArrayAsync(bitmap, result);
+                        Log.d(TAG, "Processing captured image in background");
+                    } else {
+                        result.error(new Throwable("Failed to capture image"));
+                    }
+                }
             }
 
             @Override
@@ -229,12 +243,14 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
 
             @Override
             public void setFlashStatus(@NonNull Boolean isActive) {
+                Log.d(TAG, "Setting flash status to " + isActive);
                 cameraView.changeFlashState(isActive);
             }
 
             @NonNull
             @Override
             public Boolean getFlashStatus() {
+                Log.d(TAG, "Getting flash status " + cameraView.isFlashEnabled());
                 return cameraView.isFlashEnabled();
             }
 
@@ -247,18 +263,53 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     }
 
     private void setupCamera() {
-        cameraScanModel.getStreamBitmapObserver().observe((LifecycleOwner) activity, bitmap -> {
-            Log.d(TAG, "Bitmap obtained");
-        });
-        cameraScanModel.getBarcodeResultObserver().observe((LifecycleOwner) activity, barcodeResult -> {
-            Log.d(TAG, "Barcode result obtained");
-        });
-        cameraScanModel.getExceptionObserver().observe((LifecycleOwner) activity, exception -> {
-            Log.d(TAG, "Exception obtained");
-        });
+        cameraScanModel.getStreamBitmapObserver().observe((LifecycleOwner) activity, this::handleImage);
+        cameraScanModel.getBarcodeResultObserver().observe((LifecycleOwner) activity, this::handleBarcodeResult);
+        cameraScanModel.getExceptionObserver().observe((LifecycleOwner) activity, exception -> Log.d(TAG, "Exception obtained"));
         cameraView = cameraViewBinding.cameraView;
         cameraScanModel.initCamera(activity, cameraView);
+        this.cameraImageListener = new CameraApiInterface.CameraImageListener(flutterPluginBinding.getBinaryMessenger());
     }
+
+    private void handleBarcodeResult(String barcodeResult) {
+        activity.runOnUiThread(() -> cameraImageListener.onQrCodeAvailable(barcodeResult, new CameraApiInterface.VoidResult() {
+            @Override
+            public void success() {
+
+            }
+
+            @Override
+            public void error(@NonNull Throwable error) {
+
+            }
+        }));
+
+    }
+
+    private void handleImage(Bitmap bitmap) {
+        BitmapUtils.convertBitmapToByteArrayAsync(bitmap, new CameraApiInterface.Result<>() {
+            @Override
+            public void success(@NonNull byte[] image) {
+                activity.runOnUiThread(() -> cameraImageListener.onImageAvailable(image, new CameraApiInterface.VoidResult() {
+                    @Override
+                    public void success() {
+
+                    }
+
+                    @Override
+                    public void error(@NonNull Throwable error) {
+
+                    }
+                }));
+            }
+
+            @Override
+            public void error(@NonNull Throwable error) {
+
+            }
+        });
+    }
+
     @Override
     public void onDetachedFromActivityForConfigChanges() {
         Log.d(TAG, "Detaching activity config changes");
@@ -277,3 +328,4 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
         activityPluginBinding = null;
     }
 }
+
