@@ -1,2 +1,2 @@
 dart run pigeon \
-  --input pigeon/camera_api.dart \
+  --input pigeon/camera_api_interface.dart \

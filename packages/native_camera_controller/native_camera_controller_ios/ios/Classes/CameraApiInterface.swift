@@ -75,7 +75,7 @@ enum FlashState: Int {
   case enabled = 1
 }
 
-private class CameraApiPigeonCodecReader: FlutterStandardReader {
+private class CameraApiInterfacePigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
     case 129:
@@ -90,7 +90,7 @@ private class CameraApiPigeonCodecReader: FlutterStandardReader {
   }
 }
 
-private class CameraApiPigeonCodecWriter: FlutterStandardWriter {
+private class CameraApiInterfacePigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
     if let value = value as? FlashState {
       super.writeByte(129)
@@ -101,18 +101,18 @@ private class CameraApiPigeonCodecWriter: FlutterStandardWriter {
   }
 }
 
-private class CameraApiPigeonCodecReaderWriter: FlutterStandardReaderWriter {
+private class CameraApiInterfacePigeonCodecReaderWriter: FlutterStandardReaderWriter {
   override func reader(with data: Data) -> FlutterStandardReader {
-    return CameraApiPigeonCodecReader(data: data)
+    return CameraApiInterfacePigeonCodecReader(data: data)
   }
 
   override func writer(with data: NSMutableData) -> FlutterStandardWriter {
-    return CameraApiPigeonCodecWriter(data: data)
+    return CameraApiInterfacePigeonCodecWriter(data: data)
   }
 }
 
-class CameraApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
-  static let shared = CameraApiPigeonCodec(readerWriter: CameraApiPigeonCodecReaderWriter())
+class CameraApiInterfacePigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
+  static let shared = CameraApiInterfacePigeonCodec(readerWriter: CameraApiInterfacePigeonCodecReaderWriter())
 }
 
 
@@ -132,7 +132,7 @@ protocol CameraApi {
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
 class CameraApiSetup {
-  static var codec: FlutterStandardMessageCodec { CameraApiPigeonCodec.shared }
+  static var codec: FlutterStandardMessageCodec { CameraApiInterfacePigeonCodec.shared }
   /// Sets up an instance of `CameraApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: CameraApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
@@ -291,8 +291,8 @@ class CameraImageListener: CameraImageListenerProtocol {
     self.binaryMessenger = binaryMessenger
     self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
   }
-  var codec: CameraApiPigeonCodec {
-    return CameraApiPigeonCodec.shared
+  var codec: CameraApiInterfacePigeonCodec {
+    return CameraApiInterfacePigeonCodec.shared
   }
   func onImageAvailable(image imageArg: FlutterStandardTypedData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onImageAvailable\(messageChannelSuffix)"

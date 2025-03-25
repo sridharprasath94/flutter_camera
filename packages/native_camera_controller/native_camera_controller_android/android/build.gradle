@@ -23,7 +23,6 @@ apply plugin: "com.android.library"
 
 android {
     namespace = "com.flashandroid.native_camera_controller_android"
-
     compileSdk = 35
 
     compileOptions {
