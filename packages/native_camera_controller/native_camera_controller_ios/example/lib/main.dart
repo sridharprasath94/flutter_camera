@@ -71,8 +71,7 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage>
-    implements CameraImageListener {
+class _CameraPageState extends State<CameraPage> {
   String _platformVersion = 'Unknown';
   bool _isFlashEnabled = false;
   double _zoomLevel = 0.0;
@@ -84,6 +83,8 @@ class _CameraPageState extends State<CameraPage>
 
   Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
+  StreamSubscription<Uint8List>? _imageSubscription;
+  StreamSubscription<String?>? _qrCodeSubscription;
 
   @override
   void initState() {
@@ -95,6 +96,9 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   void dispose() {
+    _imageSubscription?.cancel();
+    _qrCodeSubscription?.cancel();
+    _cameraImageListenerWrapper.dispose();
     _nativeCameraControllerAndroidPlugin.dispose();
     super.dispose();
   }
@@ -116,6 +120,7 @@ class _CameraPageState extends State<CameraPage>
     });
   }
 
+  final CameraImageListenerWrapper _cameraImageListenerWrapper = CameraImageListenerWrapper();
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerAndroidPlugin.initialize(
       FlashState.enabled,
@@ -130,7 +135,18 @@ class _CameraPageState extends State<CameraPage>
     bool flashStatus =
         await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
-    CameraImageListener.setUp(this);
+    CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
+    _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((image) {
+      setState(() {
+        _currentStreamedImage = image;
+      });
+    });
+
+    _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((qrCode) {
+      if (qrCode != null) {
+        onQrCodeAvailable(qrCode);
+      }
+    });
 
     setState(() {
       _isFlashEnabled = flashStatus;
@@ -265,7 +281,6 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  @override
   void onImageAvailable(Uint8List image) {
     setState(() {
       _currentStreamedImage = image;
@@ -274,7 +289,6 @@ class _CameraPageState extends State<CameraPage>
 
   bool _isNavigatingToQR = false;
 
-  @override
   void onQrCodeAvailable(String? qrCode) {
     if (qrCode != null && !_isNavigatingToQR) {
       debugPrint('QR Code: $qrCode. Navigating to QR code view');
