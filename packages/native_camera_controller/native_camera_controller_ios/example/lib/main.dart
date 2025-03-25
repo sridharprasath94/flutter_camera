@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -141,9 +143,12 @@ class _CameraPageState extends State<CameraPage>
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Camera with Controls')),
+    return CustomWillPopScope(
+      onWillPop: true,
+      action: () {
+        Navigator.pushNamed(context, '/');
+      },
+      child: Scaffold(
         bottomNavigationBar: BottomAppBar(
           color: Colors.transparent,
           child: Align(
@@ -178,7 +183,7 @@ class _CameraPageState extends State<CameraPage>
                   ),
                   onPressed: (() async {
                     Uint8List? image =
-                        await _nativeCameraControllerIosPlugin.takePicture();
+                    await _nativeCameraControllerIosPlugin.takePicture();
                     setState(() {
                       _currentCapturedImage = image;
                     });
@@ -263,21 +268,64 @@ class QRCodePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.transparent,
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: BackButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/camera');
-            },
+    return CustomWillPopScope(
+      onWillPop: true,
+      action: () {
+        Navigator.pushNamed(context, '/camera');
+      },
+      child: Scaffold(
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: BackButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/camera');
+              },
+            ),
           ),
         ),
-      ),
-      body: Center(
-        child: Text('QR Code: $qrCode'),
+        body: Center(
+          child: Text('QR Code: $qrCode'),
+        ),
       ),
     );
   }
+}
+
+
+class CustomWillPopScope extends StatelessWidget {
+  const CustomWillPopScope({
+    required this.child,
+    this.onWillPop = false,
+    super.key,
+    required this.action,
+  });
+
+  final Widget child;
+  final bool onWillPop;
+  final VoidCallback action;
+
+  @override
+  Widget build(BuildContext context) => Platform.isIOS
+      ? GestureDetector(
+    onPanEnd: (DragEndDetails details) {
+      if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+        action();
+      }
+    },
+    child: PopScope(
+      canPop: false,
+      child: child,
+    ),
+  )
+      : PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (bool didPop, Object? result) {
+      if (onWillPop) {
+        action();
+      }
+    },
+    child: child,
+  );
 }
