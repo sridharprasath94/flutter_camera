@@ -1,42 +1,37 @@
-group = "com.flashandroid.native_camera_controller_android"
-version = "1.0"
-
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.7.0")
-    }
+plugins {
+    id 'com.android.library'
 }
 
 rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        flatDir {
+            dirs project(':native_camera_controller_android').file('libs')
+        }
     }
 }
 
-apply plugin: "com.android.library"
 
 android {
     namespace = "com.flashandroid.native_camera_controller_android"
     compileSdk = 35
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
     }
 
     dependencies {
+        implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+        api(name: 'ui-0.2.0', ext: 'aar')
         testImplementation("junit:junit:4.13.2")
-        testImplementation("org.mockito:mockito-core:5.0.0")
+        testImplementation("org.mockito:mockito-core:5.1.1")
     }
 
     testOptions {
