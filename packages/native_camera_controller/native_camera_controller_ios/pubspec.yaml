@@ -9,7 +9,7 @@ environment:
 
 flutter:
   plugin:
-    implements: mobile_camera_controller
+    implements: native_camera_controller
     platforms:
       ios:
         pluginClass: NativeCameraControllerIosPlugin

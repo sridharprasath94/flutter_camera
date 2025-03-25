@@ -12,6 +12,7 @@ public class NativeCameraControllerIosPlugin: NSObject, FlutterPlugin {
         CameraApiSetup.setUp(binaryMessenger: registrar.messenger(), api: CameraApiImplementation(registrar: registrar))
         let factory = FLNativeViewFactory(messenger: registrar.messenger())
         registrar.register(factory, withId: "@views/native-camera-view")
+        print("Native Camera Controller IOS plugin registered")
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
