@@ -47,7 +47,7 @@ NativeCameraControllerPlatform get _platform =>
         : NativeCameraControllerIOS();
 
 /// A controller for the mobile camera.
-class MobileCameraController {
+class NativeCameraController {
   bool _isDisposed = false;
   final CameraImageListenerWrapper _cameraImageListenerWrapper =
       CameraImageListenerWrapper();
@@ -61,7 +61,7 @@ class MobileCameraController {
   Stream<String?> get qrCodeStream => _cameraImageListenerWrapper.qrCodeStream;
 
   /// Returns the name of the current platform.
-  Future<String> getPlatformName() => getPlatformName();
+  Future<String?> getPlatformVersion() => _platform.getPlatformVersion();
 
   /// Returns the camera view.
   Widget getCameraView() => _platform.getCameraView();
@@ -86,17 +86,26 @@ class MobileCameraController {
     final FlashStatus flashStatus, {
     final double flashLevel = 1,
   }) async {
-    await _platform.initialize(
-      flashStatus == FlashStatus.on ? FlashState.enabled : FlashState.disabled,
-      flashLevel,
-    );
-    return CameraParameters(
-      currentZoomLevel: await _platform.getCurrentZoomLevel(),
-      minZoomLevel: await _platform.getMinimumZoomLevel(),
-      maxZoomLevel: await _platform.getMaximumZoomLevel(),
-      flashStatus:
-          await _platform.getFlashStatus() ? FlashStatus.on : FlashStatus.off,
-    );
+    try {
+      await _platform.initialize(
+        flashStatus == FlashStatus.on
+            ? FlashState.enabled
+            : FlashState.disabled,
+        flashLevel,
+      );
+      return CameraParameters(
+        currentZoomLevel: await _platform.getCurrentZoomLevel(),
+        minZoomLevel: await _platform.getMinimumZoomLevel(),
+        maxZoomLevel: await _platform.getMaximumZoomLevel(),
+        flashStatus:
+            (await _platform.getFlashStatus())
+                ? FlashStatus.on
+                : FlashStatus.off,
+      );
+    } catch (e) {
+      debugPrint('Error initializing camera: $e');
+      rethrow;
+    }
   }
 
   /// Set the flash status.

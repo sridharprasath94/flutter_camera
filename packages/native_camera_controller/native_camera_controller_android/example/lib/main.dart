@@ -89,19 +89,18 @@ class _CameraPageState extends State<CameraPage> {
   StreamSubscription<String?>? _qrCodeSubscription;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     debugPrint('Initializing camera controller');
-    await initPlatformState();
-    await _initializeCamera();
+    unawaited(initPlatformState());
+    unawaited(_initializeCamera());
   }
 
   @override
-  Future<void> dispose() async {
-    await _imageSubscription?.cancel();
-    await _qrCodeSubscription?.cancel();
-    await _cameraImageListenerWrapper.dispose();
-    await _nativeCameraControllerAndroidPlugin.dispose();
+  void dispose() {
+    unawaited(_imageSubscription?.cancel());
+    unawaited(_qrCodeSubscription?.cancel());
+    unawaited(_nativeCameraControllerAndroidPlugin.dispose());
     super.dispose();
   }
 

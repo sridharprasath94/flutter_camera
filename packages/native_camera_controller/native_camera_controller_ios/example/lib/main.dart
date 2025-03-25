@@ -73,7 +73,7 @@ class _CameraPageState extends State<CameraPage> {
   double _minZoomLevel = 0;
   double _maxZoomLevel = 1;
 
-  final NativeCameraControllerPlatform _nativeCameraControllerAndroidPlugin =
+  final NativeCameraControllerPlatform _nativeCameraControllerIosPlugin =
       NativeCameraControllerIOS();
 
   Uint8List? _currentStreamedImage;
@@ -82,19 +82,18 @@ class _CameraPageState extends State<CameraPage> {
   StreamSubscription<String?>? _qrCodeSubscription;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     debugPrint('Initializing camera controller');
-    await initPlatformState();
-    await _initializeCamera();
+    unawaited(initPlatformState());
+    unawaited(_initializeCamera());
   }
 
   @override
-  Future<void> dispose() async {
-    await _imageSubscription?.cancel();
-    await _qrCodeSubscription?.cancel();
-    await _cameraImageListenerWrapper.dispose();
-    await _nativeCameraControllerAndroidPlugin.dispose();
+  void dispose() {
+    unawaited(_imageSubscription?.cancel());
+    unawaited(_qrCodeSubscription?.cancel());
+    unawaited(_nativeCameraControllerIosPlugin.dispose());
     super.dispose();
   }
 
@@ -102,7 +101,7 @@ class _CameraPageState extends State<CameraPage> {
     String platformVersion;
     try {
       platformVersion =
-          await _nativeCameraControllerAndroidPlugin.getPlatformVersion() ??
+          await _nativeCameraControllerIosPlugin.getPlatformVersion() ??
           'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -119,18 +118,18 @@ class _CameraPageState extends State<CameraPage> {
 
   final CameraImageListenerWrapper _cameraImageListenerWrapper = CameraImageListenerWrapper();
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerAndroidPlugin.initialize(
+    await _nativeCameraControllerIosPlugin.initialize(
       FlashState.enabled,
       0.5,
     );
     final double minZoom =
-        await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
+        await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
     final double maxZoom =
-        await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
+        await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
     final double currentZoom =
-        await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
+        await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
     final bool flashStatus =
-        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
+        await _nativeCameraControllerIosPlugin.getFlashStatus();
 
     CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((final Uint8List image) {
@@ -155,7 +154,7 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _toggleFlash() async {
     final bool newFlashStatus = !_isFlashEnabled;
-    await _nativeCameraControllerAndroidPlugin.setFlashStatus(
+    await _nativeCameraControllerIosPlugin.setFlashStatus(
       isActive: newFlashStatus,
     );
     setState(() {
@@ -164,7 +163,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> _setZoomLevel(final double value) async {
-    await _nativeCameraControllerAndroidPlugin.setZoomLevel(zoomLevel: value);
+    await _nativeCameraControllerIosPlugin.setZoomLevel(zoomLevel: value);
     setState(() {
       _zoomLevel = value;
     });
@@ -213,7 +212,7 @@ class _CameraPageState extends State<CameraPage> {
                     ),
                     onPressed: () async {
                       final Uint8List? image =
-                          await _nativeCameraControllerAndroidPlugin
+                          await _nativeCameraControllerIosPlugin
                               .takePicture();
                       setState(() {
                         _currentCapturedImage = image;
@@ -238,7 +237,7 @@ class _CameraPageState extends State<CameraPage> {
                 child: SizedBox(
                   width: 250,
                   height: 250,
-                  child: _nativeCameraControllerAndroidPlugin.getCameraView(),
+                  child: _nativeCameraControllerIosPlugin.getCameraView(),
                 ),
               ),
               const SizedBox(height: 8),
