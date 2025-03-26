@@ -92,7 +92,8 @@ class _CameraPageState extends State<CameraPage> {
   Uint8List? _currentCapturedImage;
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
-  final CameraRatio _cameraRatio = CameraRatio.ratio3X4;
+  final CameraRatio _cameraRatio = CameraRatio.ratio1X1;
+  final CameraType _cameraType = CameraType.cameraBarcodeScan;
 
   @override
   void initState() {
@@ -134,7 +135,7 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerAndroidPlugin.initialize(
-      CameraType.cameraPreview,
+      _cameraType,
       _cameraRatio,
       FlashState.enabled,
       0.5,
@@ -149,7 +150,7 @@ class _CameraPageState extends State<CameraPage> {
         await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
     CameraImageListenerWrapper.setUp(
-      CameraType.cameraPreview,
+      _cameraType,
       _cameraImageListenerWrapper,
     );
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
