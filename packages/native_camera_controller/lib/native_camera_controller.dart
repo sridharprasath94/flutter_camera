@@ -85,6 +85,7 @@ class NativeCameraController {
   Future<CameraParameters> initialize(
     final FlashStatus flashStatus, {
     final double flashLevel = 1,
+    final bool listenForImages = false,
   }) async {
     try {
       await _platform.initialize(
@@ -93,6 +94,9 @@ class NativeCameraController {
             : FlashState.disabled,
         flashLevel,
       );
+      if(listenForImages) {
+        _setUpListener();
+      }
       return CameraParameters(
         currentZoomLevel: await _platform.getCurrentZoomLevel(),
         minZoomLevel: await _platform.getMinimumZoomLevel(),
@@ -129,7 +133,7 @@ class NativeCameraController {
   Future<double> getMinZoomLevel() => _platform.getMinimumZoomLevel();
 
   /// Sets up the listener for the camera image and QR code.
-  void setUpListener() {
+  void _setUpListener() {
     CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
       final Uint8List image,
