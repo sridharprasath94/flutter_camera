@@ -55,11 +55,16 @@ class StartPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            unawaited(Navigator.pushNamed(context, '/camera'));
-          },
-          child: const Text('Start Camera'),
+        child: Column(
+          children: <Widget>[
+            const Text('Camera Controller Android Example'),
+            ElevatedButton(
+              onPressed: () {
+                unawaited(Navigator.pushNamed(context, '/camera'));
+              },
+              child: const Text('Start Camera'),
+            ),
+          ],
         ),
       ),
     ),
