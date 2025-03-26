@@ -349,10 +349,10 @@ class CameraImageListener: CameraImageListenerProtocol {
   }
 }
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
-protocol QRImageListenerProtocol {
+protocol QRCodeListenerProtocol {
   func onQrCodeAvailable(qrCode qrCodeArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void)
 }
-class QRImageListener: QRImageListenerProtocol {
+class QRCodeListener: QRCodeListenerProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
   private let messageChannelSuffix: String
   init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
@@ -363,7 +363,7 @@ class QRImageListener: QRImageListenerProtocol {
     return CameraApiInterfacePigeonCodec.shared
   }
   func onQrCodeAvailable(qrCode qrCodeArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRCodeListener.onQrCodeAvailable\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([qrCodeArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {

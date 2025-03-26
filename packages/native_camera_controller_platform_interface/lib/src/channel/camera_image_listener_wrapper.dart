@@ -5,7 +5,7 @@ import 'package:native_camera_controller_platform_interface/native_camera_contro
 
 /// A wrapper for the [CameraImageListener] that provides [Stream]s
 class CameraImageListenerWrapper
-    implements CameraImageListener, QRImageListener {
+    implements CameraImageListener, QRCodeListener {
   final StreamController<Uint8List> _imageStreamController =
       StreamController<Uint8List>.broadcast();
   final StreamController<String?> _qrCodeStreamController =
@@ -41,7 +41,7 @@ class CameraImageListenerWrapper
   ) {
     if (cameraType == CameraType.cameraBarcodeScan) {
       CameraImageListener.setUp(listener);
-      QRImageListener.setUp(listener);
+      QRCodeListener.setUp(listener);
     } else if (cameraType == CameraType.cameraCapture) {
       CameraImageListener.setUp(listener);
     }

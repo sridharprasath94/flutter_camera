@@ -397,23 +397,23 @@ abstract class CameraImageListener {
   }
 }
 
-abstract class QRImageListener {
+abstract class QRCodeListener {
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   void onQrCodeAvailable(String? qrCode);
 
-  static void setUp(QRImageListener? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+  static void setUp(QRCodeListener? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.native_camera_controller_platform_interface.QRCodeListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable was null.');
+          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.QRCodeListener.onQrCodeAvailable was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_qrCode = (args[0] as String?);
           try {

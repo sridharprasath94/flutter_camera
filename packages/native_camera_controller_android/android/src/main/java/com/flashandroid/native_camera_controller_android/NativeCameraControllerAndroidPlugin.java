@@ -54,7 +54,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     private CameraViewBinding cameraViewBinding;
     private CameraScanModel cameraScanModel;
     protected CameraApiInterface.CameraImageListener cameraImageListener;
-    protected CameraApiInterface.QRImageListener qrImageListener;
+    protected CameraApiInterface.QRCodeListener qrCodeListener;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -271,7 +271,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
         cameraView = cameraViewBinding.cameraView;
         cameraScanModel.initCamera(activity, cameraView);
         if (cameraScanModel.getCameraMode() == CameraConstants.CameraMode.BARCODE_SCAN) {
-            this.qrImageListener = new CameraApiInterface.QRImageListener(flutterPluginBinding.getBinaryMessenger());
+            this.qrCodeListener = new CameraApiInterface.QRCodeListener(flutterPluginBinding.getBinaryMessenger());
             this.cameraImageListener = new CameraApiInterface.CameraImageListener(flutterPluginBinding.getBinaryMessenger());
         } else if (cameraScanModel.getCameraMode() == CameraConstants.CameraMode.CAMERA_CAPTURE) {
             this.cameraImageListener = new CameraApiInterface.CameraImageListener(flutterPluginBinding.getBinaryMessenger());
@@ -279,10 +279,10 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
     }
 
     private void handleBarcodeResult(String barcodeResult) {
-        if (this.qrImageListener == null) {
+        if (this.qrCodeListener == null) {
             return;
         }
-        activity.runOnUiThread(() -> qrImageListener.onQrCodeAvailable(barcodeResult, new CameraApiInterface.VoidResult() {
+        activity.runOnUiThread(() -> qrCodeListener.onQrCodeAvailable(barcodeResult, new CameraApiInterface.VoidResult() {
             @Override
             public void success() {
 

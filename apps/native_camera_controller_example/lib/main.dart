@@ -232,13 +232,7 @@ class _CameraPageState extends State<CameraPage> {
                 ),
               ],
             ),
-            Center(
-              child: SizedBox(
-                width: 250,
-                height: 250,
-                child: _nativeCameraController.getCameraView(),
-              ),
-            ),
+            _nativeCameraController.getCameraView(width: 180, height: 180),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

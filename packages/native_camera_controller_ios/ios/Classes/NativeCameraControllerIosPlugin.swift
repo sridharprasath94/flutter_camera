@@ -61,7 +61,7 @@ class FLNativeView: UIView, FlutterPlatformView {
         _view = UIView()
         super.init(frame: frame)
         print("Building View")
-        let hostingController = UIHostingController(rootView: CameraHandlerView(barcodeMode: true, cameraHandler: currentSession.cameraHandler))
+        let hostingController = UIHostingController(rootView: CameraHandlerView(cameraMode: currentSession.cameraMode, previewMode: currentSession.previewMode, cameraHandler: currentSession.cameraHandler))
         self._view.addConstrained(subview: hostingController.view)
     }
     
@@ -79,10 +79,18 @@ class FLNativeView: UIView, FlutterPlatformView {
 class CameraApiImplementation: CameraApi {
     func initialize(cameraType: CameraType,cameraRatio: CameraRatio, flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, any Error>) -> Void) {
         print("Initialisng camera api")
-        CameraSession.shared.initializeCameraHandler(flashState: flashState, flashTorchLevel: flashTorchLevel)
-        let cameraListener = CameraImageListener(binaryMessenger: self.registrar.messenger())
-        cameraImageListener = cameraListener
-        listenToImages()
+        CameraSession.shared.initialize(cameraMode: CameraMode.from(cameraType: cameraType),previewMode: PreviewMode.from(cameraRatio: cameraRatio), flashState: flashState, flashTorchLevel: flashTorchLevel)
+        switch cameraType {
+        case CameraType.cameraBarcodeScan:
+            listenToCameraImages(cameraImageListener: CameraImageListener(binaryMessenger: self.registrar.messenger()))
+            listenToQrCodes(qrCodeListener: QRCodeListener(binaryMessenger: self.registrar.messenger()))
+            break;
+        case .cameraPreview:
+            break;
+        case .cameraCapture:
+            listenToCameraImages(cameraImageListener: CameraImageListener(binaryMessenger: self.registrar.messenger()))
+            break;
+        }
         completion(.success(()))
     }
     
@@ -109,8 +117,7 @@ class CameraApiImplementation: CameraApi {
     func getPlatformVersion() throws -> String {
         return "iOS " + UIDevice.current.systemVersion
     }
-    
-    var cameraImageListener: CameraImageListener?
+
     @ObservedObject var currentSession = CameraSession.shared
     
     func dispose() throws {
@@ -129,12 +136,7 @@ class CameraApiImplementation: CameraApi {
         }
     }
     
-    func listenToImages() {
-        guard let listener = cameraImageListener else {
-            print("Listener or view is not initialized")
-            return
-        }
-        
+    func listenToCameraImages(cameraImageListener: CameraImageListener) {
         DispatchQueue.main.async {
             self.currentSession.$currentCapturedImage
                 .receive(on: RunLoop.main)
@@ -142,14 +144,19 @@ class CameraApiImplementation: CameraApi {
                     guard let uiImage = uiImage else { return }
                     if let imageData = uiImage.pngData() {
                         let flutterData = FlutterStandardTypedData(bytes: imageData)
-                        listener.onImageAvailable(image: flutterData, completion: {_ in })
+                        cameraImageListener.onImageAvailable(image: flutterData, completion: {_ in })
                     }
                 }.store(in: &self.cancellables)
-            
+        }
+        
+    }
+    
+    func listenToQrCodes(qrCodeListener: QRCodeListener) {
+        DispatchQueue.main.async {
             self.currentSession.$obtainedBarcodeResult
                 .receive(on: RunLoop.main)
                 .sink { barcode in
-                    listener.onQrCodeAvailable(qrCode: barcode,completion: {_ in })
+                    qrCodeListener.onQrCodeAvailable(qrCode: barcode,completion: {_ in })
                 }.store(in: &self.cancellables)
         }
         
@@ -178,5 +185,29 @@ extension UIView {
         subview.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         subview.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         subview.translatesAutoresizingMaskIntoConstraints = false
+    }
+}
+
+extension CameraMode {
+    static func from(cameraType: CameraType) -> CameraMode {
+        switch cameraType {
+        case .cameraPreview:
+            return .cameraPreview
+        case .cameraCapture:
+            return .cameraCapture
+        case .cameraBarcodeScan:
+            return .barcodeScan
+        }
+    }
+}
+
+extension PreviewMode {
+    static func from(cameraRatio: CameraRatio) -> PreviewMode {
+        switch cameraRatio {
+        case .ratio3X4:
+            return .ratio3X4()
+        case .ratio1X1:
+            return .ratio1X1()
+        }
     }
 }

@@ -76,6 +76,6 @@ abstract class CameraImageListener {
 }
 
 @FlutterApi()
-abstract class QRImageListener {
+abstract class QRCodeListener {
   void onQrCodeAvailable(final String? qrCode);
 }

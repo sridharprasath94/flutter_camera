@@ -484,27 +484,27 @@ public class CameraApiInterface {
     }
   }
   /** Generated class from Pigeon that represents Flutter messages that can be called from Java. */
-  public static class QRImageListener {
+  public static class QRCodeListener {
     private final @NonNull BinaryMessenger binaryMessenger;
     private final String messageChannelSuffix;
 
-    public QRImageListener(@NonNull BinaryMessenger argBinaryMessenger) {
+    public QRCodeListener(@NonNull BinaryMessenger argBinaryMessenger) {
       this(argBinaryMessenger, "");
     }
-    public QRImageListener(@NonNull BinaryMessenger argBinaryMessenger, @NonNull String messageChannelSuffix) {
+    public QRCodeListener(@NonNull BinaryMessenger argBinaryMessenger, @NonNull String messageChannelSuffix) {
       this.binaryMessenger = argBinaryMessenger;
       this.messageChannelSuffix = messageChannelSuffix.isEmpty() ? "" : "." + messageChannelSuffix;
     }
 
     /**
      * Public interface for sending reply.
-     * The codec used by QRImageListener.
+     * The codec used by QRCodeListener.
      */
     static @NonNull MessageCodec<Object> getCodec() {
       return PigeonCodec.INSTANCE;
     }
     public void onQrCodeAvailable(@Nullable String qrCodeArg, @NonNull VoidResult result) {
-      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable" + messageChannelSuffix;
+      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRCodeListener.onQrCodeAvailable" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());
