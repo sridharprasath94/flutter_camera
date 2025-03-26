@@ -21,7 +21,7 @@ enum FlashState {
   enabled
 }
 
-enum CameraMode {
+enum CameraType {
   /// Camera mode for preview
   cameraPreview,
 
@@ -46,7 +46,7 @@ abstract class CameraApi {
 
   @async
   void initialize(
-    final CameraMode cameraMode,
+    final CameraType cameraType,
     final CameraRatio cameraRatio,
     final FlashState flashState,
     final double flashTorchLevel,
@@ -73,6 +73,9 @@ abstract class CameraApi {
 @FlutterApi()
 abstract class CameraImageListener {
   void onImageAvailable(final Uint8List image);
+}
 
+@FlutterApi()
+abstract class QRImageListener {
   void onQrCodeAvailable(final String? qrCode);
 }

@@ -75,7 +75,7 @@ enum FlashState: Int {
   case enabled = 1
 }
 
-enum CameraMode: Int {
+enum CameraType: Int {
   /// Camera mode for preview
   case cameraPreview = 0
   /// Camera mode for capture
@@ -103,7 +103,7 @@ private class CameraApiInterfacePigeonCodecReader: FlutterStandardReader {
     case 130:
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
       if let enumResultAsInt = enumResultAsInt {
-        return CameraMode(rawValue: enumResultAsInt)
+        return CameraType(rawValue: enumResultAsInt)
       }
       return nil
     case 131:
@@ -123,7 +123,7 @@ private class CameraApiInterfacePigeonCodecWriter: FlutterStandardWriter {
     if let value = value as? FlashState {
       super.writeByte(129)
       super.writeValue(value.rawValue)
-    } else if let value = value as? CameraMode {
+    } else if let value = value as? CameraType {
       super.writeByte(130)
       super.writeValue(value.rawValue)
     } else if let value = value as? CameraRatio {
@@ -153,7 +153,7 @@ class CameraApiInterfacePigeonCodec: FlutterStandardMessageCodec, @unchecked Sen
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol CameraApi {
   func dispose() throws
-  func initialize(cameraMode: CameraMode, cameraRatio: CameraRatio, flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, Error>) -> Void)
+  func initialize(cameraType: CameraType, cameraRatio: CameraRatio, flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, Error>) -> Void)
   func takePicture(completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func setZoomLevel(zoomLevel: Double) throws
   func getCurrentZoomLevel() throws -> Double
@@ -187,11 +187,11 @@ class CameraApiSetup {
     if let api = api {
       initializeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let cameraModeArg = args[0] as! CameraMode
+        let cameraTypeArg = args[0] as! CameraType
         let cameraRatioArg = args[1] as! CameraRatio
         let flashStateArg = args[2] as! FlashState
         let flashTorchLevelArg = args[3] as! Double
-        api.initialize(cameraMode: cameraModeArg, cameraRatio: cameraRatioArg, flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg) { result in
+        api.initialize(cameraType: cameraTypeArg, cameraRatio: cameraRatioArg, flashState: flashStateArg, flashTorchLevel: flashTorchLevelArg) { result in
           switch result {
           case .success:
             reply(wrapResult(nil))
@@ -318,7 +318,6 @@ class CameraApiSetup {
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol CameraImageListenerProtocol {
   func onImageAvailable(image imageArg: FlutterStandardTypedData, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onQrCodeAvailable(qrCode qrCodeArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void)
 }
 class CameraImageListener: CameraImageListenerProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -348,8 +347,23 @@ class CameraImageListener: CameraImageListenerProtocol {
       }
     }
   }
+}
+/// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
+protocol QRImageListenerProtocol {
+  func onQrCodeAvailable(qrCode qrCodeArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void)
+}
+class QRImageListener: QRImageListenerProtocol {
+  private let binaryMessenger: FlutterBinaryMessenger
+  private let messageChannelSuffix: String
+  init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
+    self.binaryMessenger = binaryMessenger
+    self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+  }
+  var codec: CameraApiInterfacePigeonCodec {
+    return CameraApiInterfacePigeonCodec.shared
+  }
   func onQrCodeAvailable(qrCode qrCodeArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([qrCodeArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {

@@ -32,7 +32,7 @@ enum FlashState {
   enabled,
 }
 
-enum CameraMode {
+enum CameraType {
   /// Camera mode for preview
   cameraPreview,
   /// Camera mode for capture
@@ -59,7 +59,7 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is FlashState) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is CameraMode) {
+    }    else if (value is CameraType) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
     }    else if (value is CameraRatio) {
@@ -78,7 +78,7 @@ class _PigeonCodec extends StandardMessageCodec {
         return value == null ? null : FlashState.values[value];
       case 130: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : CameraMode.values[value];
+        return value == null ? null : CameraType.values[value];
       case 131: 
         final int? value = readValue(buffer) as int?;
         return value == null ? null : CameraRatio.values[value];
@@ -124,14 +124,14 @@ class CameraApi {
     }
   }
 
-  Future<void> initialize(CameraMode cameraMode, CameraRatio cameraRatio, FlashState flashState, double flashTorchLevel) async {
+  Future<void> initialize(CameraType cameraType, CameraRatio cameraRatio, FlashState flashState, double flashTorchLevel) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraApi.initialize$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[cameraMode, cameraRatio, flashState, flashTorchLevel]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[cameraType, cameraRatio, flashState, flashTorchLevel]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -367,8 +367,6 @@ abstract class CameraImageListener {
 
   void onImageAvailable(Uint8List image);
 
-  void onQrCodeAvailable(String? qrCode);
-
   static void setUp(CameraImageListener? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -396,16 +394,26 @@ abstract class CameraImageListener {
         });
       }
     }
+  }
+}
+
+abstract class QRImageListener {
+  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
+
+  void onQrCodeAvailable(String? qrCode);
+
+  static void setUp(QRImageListener? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable was null.');
+          'Argument for dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_qrCode = (args[0] as String?);
           try {

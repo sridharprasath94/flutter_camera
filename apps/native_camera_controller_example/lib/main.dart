@@ -130,7 +130,7 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _initializeCamera() async {
     final CameraParameters cameraParameters = await _nativeCameraController
-        .initialize(FlashStatus.on, listenForImages: true);
+        .initialize();
 
     _nativeCameraController.imageStream.listen((final Uint8List image) {
       setState(() {

@@ -76,7 +76,7 @@ public class CameraApiInterface {
     }
   }
 
-  public enum CameraMode {
+  public enum CameraType {
     /** Camera mode for preview */
     CAMERA_PREVIEW(0),
     /** Camera mode for capture */
@@ -86,7 +86,7 @@ public class CameraApiInterface {
 
     final int index;
 
-    CameraMode(final int index) {
+    CameraType(final int index) {
       this.index = index;
     }
   }
@@ -118,7 +118,7 @@ public class CameraApiInterface {
         }
         case (byte) 130: {
           Object value = readValue(buffer);
-          return value == null ? null : CameraMode.values()[((Long) value).intValue()];
+          return value == null ? null : CameraType.values()[((Long) value).intValue()];
         }
         case (byte) 131: {
           Object value = readValue(buffer);
@@ -134,9 +134,9 @@ public class CameraApiInterface {
       if (value instanceof FlashState) {
         stream.write(129);
         writeValue(stream, value == null ? null : ((FlashState) value).index);
-      } else if (value instanceof CameraMode) {
+      } else if (value instanceof CameraType) {
         stream.write(130);
-        writeValue(stream, value == null ? null : ((CameraMode) value).index);
+        writeValue(stream, value == null ? null : ((CameraType) value).index);
       } else if (value instanceof CameraRatio) {
         stream.write(131);
         writeValue(stream, value == null ? null : ((CameraRatio) value).index);
@@ -176,7 +176,7 @@ public class CameraApiInterface {
 
     void dispose();
 
-    void initialize(@NonNull CameraMode cameraMode, @NonNull CameraRatio cameraRatio, @NonNull FlashState flashState, @NonNull Double flashTorchLevel, @NonNull VoidResult result);
+    void initialize(@NonNull CameraType cameraType, @NonNull CameraRatio cameraRatio, @NonNull FlashState flashState, @NonNull Double flashTorchLevel, @NonNull VoidResult result);
 
     void takePicture(@NonNull Result<byte[]> result);
 
@@ -239,7 +239,7 @@ public class CameraApiInterface {
               (message, reply) -> {
                 ArrayList<Object> wrapped = new ArrayList<>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
-                CameraMode cameraModeArg = (CameraMode) args.get(0);
+                CameraType cameraTypeArg = (CameraType) args.get(0);
                 CameraRatio cameraRatioArg = (CameraRatio) args.get(1);
                 FlashState flashStateArg = (FlashState) args.get(2);
                 Double flashTorchLevelArg = (Double) args.get(3);
@@ -256,7 +256,7 @@ public class CameraApiInterface {
                       }
                     };
 
-                api.initialize(cameraModeArg, cameraRatioArg, flashStateArg, flashTorchLevelArg, resultCallback);
+                api.initialize(cameraTypeArg, cameraRatioArg, flashStateArg, flashTorchLevelArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -482,8 +482,29 @@ public class CameraApiInterface {
             } 
           });
     }
+  }
+  /** Generated class from Pigeon that represents Flutter messages that can be called from Java. */
+  public static class QRImageListener {
+    private final @NonNull BinaryMessenger binaryMessenger;
+    private final String messageChannelSuffix;
+
+    public QRImageListener(@NonNull BinaryMessenger argBinaryMessenger) {
+      this(argBinaryMessenger, "");
+    }
+    public QRImageListener(@NonNull BinaryMessenger argBinaryMessenger, @NonNull String messageChannelSuffix) {
+      this.binaryMessenger = argBinaryMessenger;
+      this.messageChannelSuffix = messageChannelSuffix.isEmpty() ? "" : "." + messageChannelSuffix;
+    }
+
+    /**
+     * Public interface for sending reply.
+     * The codec used by QRImageListener.
+     */
+    static @NonNull MessageCodec<Object> getCodec() {
+      return PigeonCodec.INSTANCE;
+    }
     public void onQrCodeAvailable(@Nullable String qrCodeArg, @NonNull VoidResult result) {
-      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.CameraImageListener.onQrCodeAvailable" + messageChannelSuffix;
+      final String channelName = "dev.flutter.pigeon.native_camera_controller_platform_interface.QRImageListener.onQrCodeAvailable" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());
