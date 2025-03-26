@@ -49,6 +49,7 @@ class StartPage extends StatelessWidget {
     action: () {},
     child: Scaffold(
       appBar:  AppBar(
+        automaticallyImplyLeading: false,
         title: const Center(child: Text('Camera Controller iOS Example')),
       ),
       body: Center(

@@ -48,6 +48,7 @@ class StartPage extends StatelessWidget {
     action: Platform.isAndroid ? SystemNavigator.pop : () {},
     child: Scaffold(
       appBar:  AppBar(
+        automaticallyImplyLeading: false,
         title: const Center(child: Text('Camera Controller Example')),
       ),
       bottomNavigationBar: Platform.isAndroid ? const BottomAppBar(
