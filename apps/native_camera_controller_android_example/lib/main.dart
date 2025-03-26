@@ -47,6 +47,9 @@ class StartPage extends StatelessWidget {
     onWillPop: false,
     action: SystemNavigator.pop,
     child: Scaffold(
+      appBar:  AppBar(
+        title: const Center(child: Text('Camera Controller Android Example')),
+      ),
       bottomNavigationBar: const BottomAppBar(
         color: Colors.transparent,
         child: Align(
@@ -55,16 +58,11 @@ class StartPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            const Text('Camera Controller Android Example'),
-            ElevatedButton(
-              onPressed: () {
-                unawaited(Navigator.pushNamed(context, '/camera'));
-              },
-              child: const Text('Start Camera'),
-            ),
-          ],
+        child: ElevatedButton(
+          onPressed: () {
+            unawaited(Navigator.pushNamed(context, '/camera'));
+          },
+          child: const Text('Start Camera'),
         ),
       ),
     ),

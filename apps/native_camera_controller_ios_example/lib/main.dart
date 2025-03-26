@@ -48,17 +48,15 @@ class StartPage extends StatelessWidget {
     onWillPop: false,
     action: () {},
     child: Scaffold(
+      appBar:  AppBar(
+        title: const Center(child: Text('Camera Controller iOS Example')),
+      ),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            const Text('Camera Controller iOS Example'),
-            ElevatedButton(
-              onPressed: () async {
-                await Navigator.pushNamed(context, '/camera');
-              },
-              child: const Text('Start Camera'),
-            ),
-          ],
+        child: ElevatedButton(
+          onPressed: () async {
+            await Navigator.pushNamed(context, '/camera');
+          },
+          child: const Text('Start Camera'),
         ),
       ),
     ),
