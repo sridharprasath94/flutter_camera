@@ -8,7 +8,7 @@ command:
   bootstrap:
     hooks:
       post: |
-        melos exec -- "if echo \$(pwd) | grep -qE 'native_camera_controller_android/example|native_camera_controller_ios/example|native_camera_controller/example'; then echo 'include: ../../../../analysis_options.yaml' > analysis_options.yaml; else echo 'include: ../../../analysis_options.yaml' > analysis_options.yaml; fi"
+        melos exec -- "echo 'include: ../../analysis_options.yaml' > analysis_options.yaml"
 
 scripts:
   analyze:

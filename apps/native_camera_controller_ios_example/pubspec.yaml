@@ -11,9 +11,9 @@ dependencies:
     sdk: flutter
 
   native_camera_controller_ios:
-    path: ../../packages/native_camera_controller/native_camera_controller_ios
+    path: ../../packages/native_camera_controller_ios
   native_camera_controller_platform_interface:
-    path: ../../packages/native_camera_controller/native_camera_controller_platform_interface
+    path: ../../packages/native_camera_controller_platform_interface
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

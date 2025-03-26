@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   native_camera_controller:
-    path: ../../packages/native_camera_controller/native_camera_controller
+    path: ../../packages/native_camera_controller
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

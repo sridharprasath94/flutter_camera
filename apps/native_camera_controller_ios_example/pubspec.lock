@@ -157,14 +157,14 @@ packages:
   native_camera_controller_ios:
     dependency: "direct main"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller_ios"
+      path: "../../packages/native_camera_controller_ios"
       relative: true
     source: path
     version: "0.0.1"
   native_camera_controller_platform_interface:
     dependency: "direct main"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller_platform_interface"
+      path: "../../packages/native_camera_controller_platform_interface"
       relative: true
     source: path
     version: "0.1.0+1"

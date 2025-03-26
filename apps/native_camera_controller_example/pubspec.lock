@@ -134,28 +134,28 @@ packages:
   native_camera_controller:
     dependency: "direct main"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller"
+      path: "../../packages/native_camera_controller"
       relative: true
     source: path
     version: "0.1.0+1"
   native_camera_controller_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller_android"
+      path: "../../packages/native_camera_controller_android"
       relative: true
     source: path
     version: "0.0.1"
   native_camera_controller_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller_ios"
+      path: "../../packages/native_camera_controller_ios"
       relative: true
     source: path
     version: "0.0.1"
   native_camera_controller_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      path: "../../packages/native_camera_controller/native_camera_controller_platform_interface"
+      path: "../../packages/native_camera_controller_platform_interface"
       relative: true
     source: path
     version: "0.1.0+1"
