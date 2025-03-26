@@ -1,0 +1,29 @@
+PODS:
+  - Flutter (1.0.0)
+  - native_camera_controller_ios (0.0.1):
+    - Flutter
+    - SwiftIOSCamera (= 0.1.0)
+  - SwiftIOSCamera (0.1.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - native_camera_controller_ios (from `.symlinks/plugins/native_camera_controller_ios/ios`)
+
+SPEC REPOS:
+  "git@github.com:sridharprasath94/cocoapods.git":
+    - SwiftIOSCamera
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  native_camera_controller_ios:
+    :path: ".symlinks/plugins/native_camera_controller_ios/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  native_camera_controller_ios: d4eb5d35bb12066b996cccd525328705e2fced13
+  SwiftIOSCamera: 6f1e20e8dc7763064e880c555eb2c3d19627ab8b
+
+PODFILE CHECKSUM: fc3aa3b44224ccbb56719efab611b2524656fc52
+
+COCOAPODS: 1.16.2
