@@ -1,0 +1,32 @@
+name: native_camera_controller_ios
+description: "A new Flutter plugin project."
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+  flutter: '>=3.3.0'
+
+flutter:
+  plugin:
+    implements: native_camera_controller
+    platforms:
+      ios:
+        pluginClass: NativeCameraControllerIosPlugin
+        dartPluginClass: NativeCameraControllerIOS
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  native_camera_controller_platform_interface:
+    path: ../native_camera_controller_platform_interface
+  plugin_platform_interface: ^2.0.2
+
+
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^7.0.0

@@ -1,0 +1,38 @@
+name: Melos CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  melos-checks:
+    name: Run Melos CI
+    runs-on: windows-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.29.0
+
+      - name: 📦 Install Melos
+        run: dart pub global activate melos
+
+      - name: 🚀 Bootstrap Melos
+        run: melos bootstrap
+
+      - name: 🔍 Analyze Code
+        run: melos run analyze
+
+      - name: 🧹 Format Code
+        run: melos run format
+
+      - name: 🛠 Build Generated Files
+        run: melos run build
+
+      - name: 🚀 Upgrade Dependencies
+        run: melos run upgrade

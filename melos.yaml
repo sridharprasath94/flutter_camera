@@ -1,0 +1,35 @@
+name: flutter_camera
+
+packages:
+  - apps/**
+  - packages/**
+
+command:
+  bootstrap:
+    hooks:
+      post: |
+        melos exec -- "echo 'include: ../../analysis_options.yaml' > analysis_options.yaml"
+
+scripts:
+  analyze:
+    run: melos exec -- "dart analyze ."
+    description: Run Dart analysis on all packages.
+
+  build:
+    run: melos exec --depends-on=build_runner -- "dart run build_runner build -d"
+    description: Build all generated files for Dart & Flutter packages in this project.
+
+  format:
+    run: melos exec -- "dart format ."
+    description: Format all Dart files in the workspace.
+
+  clean:
+    run: melos exec -- "flutter clean"
+    description: Clean all packages.
+
+  upgrade:
+    run: |
+      melos exec -- "flutter pub get"
+      melos exec -- "flutter pub outdated"
+      melos exec -- "flutter pub upgrade --major-versions"
+    description: Clean caches, update dependencies, and upgrade all packages.

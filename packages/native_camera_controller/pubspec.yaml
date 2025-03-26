@@ -1,0 +1,33 @@
+name: native_camera_controller
+description: A Very Good Project created by Very Good CLI.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+  flutter: '>=3.3.0'
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: native_camera_controller_android
+      ios:
+        default_package: native_camera_controller_ios
+
+dependencies:
+  flutter:
+    sdk: flutter
+  native_camera_controller_android:
+    path: ../native_camera_controller_android
+  native_camera_controller_ios:
+    path: ../native_camera_controller_ios
+  native_camera_controller_platform_interface:
+    path: ../native_camera_controller_platform_interface
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  very_good_analysis: ^7.0.0
