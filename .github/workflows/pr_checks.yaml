@@ -8,8 +8,7 @@ on:
 jobs:
   melos-checks:
     name: Run Melos CI
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -17,7 +16,8 @@ jobs:
       - name: 🎯 Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
+          channel: stable
+          flutter-version: 3.29.0
 
       - name: 📦 Install Melos
         run: dart pub global activate melos
