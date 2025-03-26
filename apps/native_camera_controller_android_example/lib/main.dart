@@ -27,7 +27,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute<Object?>(
           maintainState: false,
           builder:
-              (final BuildContext context) => QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+              (final BuildContext context) =>
+                  QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
         );
       } else {
         return MaterialPageRoute<Object?>(
@@ -47,7 +48,7 @@ class StartPage extends StatelessWidget {
     onWillPop: false,
     action: SystemNavigator.pop,
     child: Scaffold(
-      appBar:  AppBar(
+      appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Center(child: Text('Camera Controller Android Example')),
       ),
@@ -85,12 +86,14 @@ class _CameraPageState extends State<CameraPage> {
   double _maxZoomLevel = 1;
 
   final NativeCameraControllerPlatform _nativeCameraControllerAndroidPlugin =
-  NativeCameraControllerAndroid();
+      NativeCameraControllerAndroid();
 
   Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
+  final CameraRatio _cameraRatio = CameraRatio.ratio1X1;
+  final CameraType _cameraType = CameraType.cameraBarcodeScan;
 
   @override
   void initState() {
@@ -113,7 +116,7 @@ class _CameraPageState extends State<CameraPage> {
     try {
       platformVersion =
           await _nativeCameraControllerAndroidPlugin.getPlatformVersion() ??
-              'Unknown platform version';
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -128,34 +131,39 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   final CameraImageListenerWrapper _cameraImageListenerWrapper =
-  CameraImageListenerWrapper();
+      CameraImageListenerWrapper();
 
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerAndroidPlugin.initialize(
+      _cameraType,
+      _cameraRatio,
       FlashState.enabled,
       0.5,
     );
     final double minZoom =
-    await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMinimumZoomLevel();
     final double maxZoom =
-    await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getMaximumZoomLevel();
     final double currentZoom =
-    await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
+        await _nativeCameraControllerAndroidPlugin.getCurrentZoomLevel();
     final bool flashStatus =
-    await _nativeCameraControllerAndroidPlugin.getFlashStatus();
+        await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
-    CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
+    CameraImageListenerWrapper.setUp(
+      _cameraType,
+      _cameraImageListenerWrapper,
+    );
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
-        final Uint8List image,
-        ) {
+      final Uint8List image,
+    ) {
       setState(() {
         _currentStreamedImage = image;
       });
     });
 
     _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((
-        final String? qrCode,
-        ) {
+      final String? qrCode,
+    ) {
       if (qrCode != null) {
         onQrCodeAvailable(qrCode);
       }
@@ -229,13 +237,13 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   onPressed: () async {
                     final Uint8List? image =
-                    await _nativeCameraControllerAndroidPlugin
-                        .takePicture();
+                        await _nativeCameraControllerAndroidPlugin
+                            .takePicture();
                     setState(() {
                       _currentCapturedImage = image;
                     });
                     await Future<Object?>.delayed(const Duration(seconds: 2));
-                    if(mounted){
+                    if (mounted) {
                       setState(() {
                         _currentCapturedImage = null;
                       });
@@ -254,8 +262,8 @@ class _CameraPageState extends State<CameraPage> {
             ),
             Center(
               child: SizedBox(
-                width: 250,
-                height: 250,
+                width: 180,
+                height: 180 / _cameraRatio.ratioValue,
                 child: _nativeCameraControllerAndroidPlugin.getCameraView(),
               ),
             ),
@@ -357,20 +365,20 @@ class CustomWillPopScope extends StatelessWidget {
   Widget build(final BuildContext context) =>
       Platform.isIOS
           ? GestureDetector(
-        onPanEnd: (final DragEndDetails details) {
-          if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
-            action();
-          }
-        },
-        child: PopScope(canPop: false, child: child),
-      )
+            onPanEnd: (final DragEndDetails details) {
+              if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+                action();
+              }
+            },
+            child: PopScope(canPop: false, child: child),
+          )
           : PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (final bool didPop, final Object? result) {
-          if (onWillPop) {
-            action();
-          }
-        },
-        child: child,
-      );
+            canPop: false,
+            onPopInvokedWithResult: (final bool didPop, final Object? result) {
+              if (onWillPop) {
+                action();
+              }
+            },
+            child: child,
+          );
 }

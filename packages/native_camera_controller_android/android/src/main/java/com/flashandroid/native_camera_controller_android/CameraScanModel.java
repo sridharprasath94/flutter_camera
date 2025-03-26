@@ -1,5 +1,7 @@
 package com.flashandroid.native_camera_controller_android;
 
+import static com.flashandroid.native_camera_controller_android.CameraApiInterface.CameraType.CAMERA_BARCODE_SCAN;
+import static com.flashandroid.native_camera_controller_android.CameraApiInterface.CameraType.CAMERA_PREVIEW;
 import static com.flashandroid.sdk.ui.CameraParameters.CameraRatioMode.RATIO_1X1;
 
 import android.app.Activity;
@@ -33,6 +35,10 @@ public class CameraScanModel extends ViewModel {
         return barcodeResultObserver;
     }
 
+    public CameraConstants.CameraMode getCameraMode () {
+        return cameraMode;
+    }
+
     private final WeakReference<Context> contextRef;
     private final boolean enableFlash;
     private final static String TAG = "NATIVE_CAMERA_CONTROLLER_ANDROID_CAMERA";
@@ -40,31 +46,37 @@ public class CameraScanModel extends ViewModel {
     private final MutableLiveData<Bitmap> bitmapStreamObserver = new MutableLiveData<>();
 
     private final MutableLiveData<String> barcodeResultObserver = new MutableLiveData<>();
+    private final CameraParameters.CameraRatioMode cameraRatioMode;
+    private final CameraConstants.CameraMode cameraMode;
 
-    public CameraScanModel(Context context, @NonNull CameraApiInterface.FlashState flashState){
+    public CameraScanModel(Context context, @NonNull CameraApiInterface.CameraType cameraType, @NonNull CameraApiInterface.CameraRatio cameraRatio, @NonNull CameraApiInterface.FlashState flashState) {
         this.contextRef = new WeakReference<>(context);
+        this.cameraRatioMode = cameraRatio == CameraApiInterface.CameraRatio.RATIO1X1 ? RATIO_1X1 : CameraParameters.CameraRatioMode.RATIO_3X4;
+        this.cameraMode = (cameraType == CAMERA_BARCODE_SCAN) ? CameraConstants.CameraMode.BARCODE_SCAN :
+                (cameraType == CAMERA_PREVIEW) ? CameraConstants.CameraMode.CAMERA_PREVIEW :
+                        CameraConstants.CameraMode.CAMERA_CAPTURE;
         this.enableFlash = flashState == CameraApiInterface.FlashState.ENABLED;
     }
 
     protected void initCamera(Activity activity, CameraView cameraView) {
         CameraParameters cameraParameters = new CameraParameters.Builder()
-                .selectRatio(RATIO_1X1)
-                .updateCameraMode(CameraConstants.CameraMode.BARCODE_SCAN)
+                .selectRatio(this.cameraRatioMode)
+                .updateCameraMode(this.cameraMode)
                 .enableDefaultLayout(false)
                 .selectPrimaryCamera(false)
                 .build();
         cameraView.initCameraCapture(cameraParameters, (Activity) this.contextRef.get(), new CameraCallback() {
             @Override
             public void onImageObtained(Bitmap bitmap, String barcodeResult) {
-                if(bitmap != null) {
+                if (bitmap != null) {
                     activity.runOnUiThread(() -> bitmapStreamObserver.postValue(bitmap));
                 }
-                activity.runOnUiThread(() ->  barcodeResultObserver.postValue(barcodeResult));
+                activity.runOnUiThread(() -> barcodeResultObserver.postValue(barcodeResult));
             }
 
             @Override
             public void onError(ExceptionType type, Exception e) {
-                activity.runOnUiThread(() ->   exceptionObserver.postValue(e));
+                activity.runOnUiThread(() -> exceptionObserver.postValue(e));
             }
         });
         cameraView.changeFlashState(enableFlash);

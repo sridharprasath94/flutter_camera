@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:native_camera_controller_platform_interface/native_camera_controller_platform_interface.dart';
 
 /// A wrapper for the [CameraImageListener] that provides [Stream]s
-class CameraImageListenerWrapper implements CameraImageListener {
+class CameraImageListenerWrapper
+    implements CameraImageListener, QRCodeListener {
   final StreamController<Uint8List> _imageStreamController =
       StreamController<Uint8List>.broadcast();
   final StreamController<String?> _qrCodeStreamController =
@@ -34,7 +35,15 @@ class CameraImageListenerWrapper implements CameraImageListener {
   }
 
   /// Sets up the [CameraImageListenerWrapper] with the [CameraImageListener]
-  static void setUp(final CameraImageListenerWrapper listener) {
-    CameraImageListener.setUp(listener);
+  static void setUp(
+    final CameraType cameraType,
+    final CameraImageListenerWrapper listener,
+  ) {
+    if (cameraType == CameraType.cameraBarcodeScan) {
+      CameraImageListener.setUp(listener);
+      QRCodeListener.setUp(listener);
+    } else if (cameraType == CameraType.cameraCapture) {
+      CameraImageListener.setUp(listener);
+    }
   }
 }

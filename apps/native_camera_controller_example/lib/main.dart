@@ -130,9 +130,8 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _initializeCamera() async {
     final CameraParameters cameraParameters = await _nativeCameraController
-        .initialize(FlashStatus.on);
+        .initialize();
 
-    _nativeCameraController.setUpListener();
     _nativeCameraController.imageStream.listen((final Uint8List image) {
       setState(() {
         _currentStreamedImage = image;
@@ -233,13 +232,7 @@ class _CameraPageState extends State<CameraPage> {
                 ),
               ],
             ),
-            Center(
-              child: SizedBox(
-                width: 250,
-                height: 250,
-                child: _nativeCameraController.getCameraView(),
-              ),
-            ),
+            _nativeCameraController.getCameraView(width: 180, height: 180),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

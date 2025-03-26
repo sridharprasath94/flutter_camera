@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:native_camera_controller_platform_interface/src/channel/camera_api.pigeon.dart';
+import 'package:native_camera_controller_platform_interface/src/channel/camera_api_interface.pigeon.dart';
 import 'package:native_camera_controller_platform_interface/src/channel/method_channel_native_camera_controller.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -37,7 +37,6 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
 
   final CameraApi _cameraApi = CameraApi();
 
-
   /// Return the current platform version.
   Future<String?> getPlatformVersion();
 
@@ -61,10 +60,14 @@ abstract class NativeCameraControllerPlatform extends PlatformInterface {
 
   /// Set the flash status.
   Future<void> initialize(
+    final CameraType cameraType,
+    final CameraRatio cameraRatio,
     final FlashState flashState,
     final double flashTorchLevel,
   ) =>
       _cameraApi.initialize(
+        cameraType,
+        cameraRatio,
         flashState,
         flashTorchLevel,
       );

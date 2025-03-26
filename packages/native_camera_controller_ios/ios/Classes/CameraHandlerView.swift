@@ -13,9 +13,19 @@ class CameraSession: ObservableObject {
         fatalError("CameraSessionHandler must be explicitly initialized using `initialize` method")
     }()
     
-    func initializeCameraHandler(flashState: FlashState, flashTorchLevel: Double) {
-        cameraHandler = CameraSessionHandler(enableFlash: flashState == .enabled)
-        _ = cameraHandler.updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
+    lazy var cameraMode : CameraMode = {
+        fatalError("CameraMode must be explicitly initialized using `initialize` method")
+    }()
+    
+    lazy var previewMode : PreviewMode = {
+        fatalError("PreviewMode must be explicitly initialized using `initialize` method")
+    }()
+    
+    func initialize(cameraMode : CameraMode, previewMode: PreviewMode, flashState: FlashState, flashTorchLevel: Double) {
+        self.cameraHandler = CameraSessionHandler(enableFlash: flashState == .enabled)
+        self.cameraMode = cameraMode
+        self.previewMode = previewMode
+        _ = self.cameraHandler.updateFlashTorchLevel(torchLevel: Float(flashTorchLevel))
         cameraHandler.changeFlashState(toggleState: flashState == .enabled)
     }
 }
@@ -24,7 +34,8 @@ class CameraSession: ObservableObject {
 struct CameraHandlerView: View {
     @Environment(\.presentationMode) private var presentationMode
     @StateObject var cameraHandler : CameraSessionHandler
-    @State var barcodeMode: Bool
+    @State var cameraMode: CameraMode
+    @State var previewMode: PreviewMode
     @ObservedObject var cameraViewModel = CameraSession.shared
     @State private var initialFlash: Bool = false
     @State var currentCameraState : CameraState = .CAMERA_RESUME
@@ -32,13 +43,15 @@ struct CameraHandlerView: View {
         case CAMERA_RESUME
         case CAMERA_STOP}
     
-    init(barcodeMode: Bool, cameraHandler: CameraSessionHandler) {
-        self._barcodeMode = State.init(initialValue: barcodeMode)
+    init(cameraMode: CameraMode, previewMode: PreviewMode, cameraHandler: CameraSessionHandler) {
+        self._cameraMode = State.init(initialValue: cameraMode)
+        self._previewMode = State.init(initialValue: previewMode)
         self._cameraHandler = StateObject.init(wrappedValue: cameraHandler)
         print("Camera view")
     }
     var body: some View {
         GeometryReader { geometry in
+            let _ = print("Geometry width \(geometry.size.width) and height \((geometry.size.height))")
             ZStack{
                 cameraControllerView(viewWidth: geometry.size.width)
             }.frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
@@ -50,23 +63,20 @@ struct CameraHandlerView: View {
     
     fileprivate func cameraControllerView(viewWidth: CGFloat) -> some View {
         return HStack {
-            CameraView(cameraSessionHandler: cameraHandler, cameraMode: barcodeMode ? CameraMode.barcodeScan : CameraMode.cameraCapture,  previewMode: .ratio1X1(initialWidth: viewWidth)).initCameraCallback(cameraCaptureCallback: .init(onCameraImageObtained: { uiImage in
+//            let _ = print("Geometry width \(viewWidth) and height \((viewWidth /  previewMode.ratioValue))")
+            CameraView(cameraSessionHandler: cameraHandler, cameraMode: cameraMode,  previewMode: (previewMode == .ratio1X1()) ? .ratio1X1(initialWidth: viewWidth) : .ratio3X4(initialWidth: viewWidth)).initCameraCallback(cameraCaptureCallback: .init(onCameraImageObtained: { uiImage in
                 DispatchQueue.main.async {
                     cameraViewModel.currentCapturedImage = uiImage
                 }
             }, onBarcodeObtained: { barcodeResult in
                 DispatchQueue.main.async {
-                   cameraViewModel.obtainedBarcodeResult = barcodeResult
-                 }
+                    cameraViewModel.obtainedBarcodeResult = barcodeResult
+                }
             }, onError: { exceptionType, error in
                 print(error)
-            })).onAppear(){
-                if(barcodeMode){
-                    return
-                }
-            }
+            }))
         }.frame(width: viewWidth,
-                height:  (viewWidth /  PreviewMode.ratio1X1().ratioValue) ,
+                height:  (viewWidth /  previewMode.ratioValue) ,
                 alignment: .center)
     }
     
@@ -81,6 +91,6 @@ struct CameraHandlerView: View {
 
 struct CameraHandlerView_Previews: PreviewProvider {
     static var previews: some View {
-        CameraHandlerView(barcodeMode: false,cameraHandler: CameraSessionHandler())
+        CameraHandlerView(cameraMode: .cameraCapture, previewMode: .ratio1X1(),cameraHandler: CameraSessionHandler())
     }
 }

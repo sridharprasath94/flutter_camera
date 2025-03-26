@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           maintainState: false,
           builder:
               (final BuildContext context) =>
-              QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+                  QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
         );
       } else {
         return MaterialPageRoute<Object?>(
@@ -48,7 +48,7 @@ class StartPage extends StatelessWidget {
     onWillPop: false,
     action: () {},
     child: Scaffold(
-      appBar:  AppBar(
+      appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Center(child: Text('Camera Controller iOS Example')),
       ),
@@ -77,9 +77,11 @@ class _CameraPageState extends State<CameraPage> {
   double _zoomLevel = 0;
   double _minZoomLevel = 0;
   double _maxZoomLevel = 1;
+  final CameraRatio _cameraRatio = CameraRatio.ratio1X1;
+  final CameraType _cameraType = CameraType.cameraBarcodeScan;
 
   final NativeCameraControllerPlatform _nativeCameraControllerIosPlugin =
-  NativeCameraControllerIOS();
+      NativeCameraControllerIOS();
 
   Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
@@ -107,7 +109,7 @@ class _CameraPageState extends State<CameraPage> {
     try {
       platformVersion =
           await _nativeCameraControllerIosPlugin.getPlatformVersion() ??
-              'Unknown platform version';
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -122,31 +124,39 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   final CameraImageListenerWrapper _cameraImageListenerWrapper =
-  CameraImageListenerWrapper();
+      CameraImageListenerWrapper();
 
   Future<void> _initializeCamera() async {
-    await _nativeCameraControllerIosPlugin.initialize(FlashState.enabled, 0.5);
+    await _nativeCameraControllerIosPlugin.initialize(
+      _cameraType,
+      _cameraRatio,
+      FlashState.enabled,
+      0.5,
+    );
     final double minZoom =
-    await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
+        await _nativeCameraControllerIosPlugin.getMinimumZoomLevel();
     final double maxZoom =
-    await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
+        await _nativeCameraControllerIosPlugin.getMaximumZoomLevel();
     final double currentZoom =
-    await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
+        await _nativeCameraControllerIosPlugin.getCurrentZoomLevel();
     final bool flashStatus =
-    await _nativeCameraControllerIosPlugin.getFlashStatus();
+        await _nativeCameraControllerIosPlugin.getFlashStatus();
 
-    CameraImageListenerWrapper.setUp(_cameraImageListenerWrapper);
+    CameraImageListenerWrapper.setUp(
+      _cameraType,
+      _cameraImageListenerWrapper,
+    );
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
-        final Uint8List image,
-        ) {
+      final Uint8List image,
+    ) {
       setState(() {
         _currentStreamedImage = image;
       });
     });
 
     _qrCodeSubscription = _cameraImageListenerWrapper.qrCodeStream.listen((
-        final String? qrCode,
-        ) {
+      final String? qrCode,
+    ) {
       if (qrCode != null) {
         onQrCodeAvailable(qrCode);
       }
@@ -220,7 +230,7 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   onPressed: () async {
                     final Uint8List? image =
-                    await _nativeCameraControllerIosPlugin.takePicture();
+                        await _nativeCameraControllerIosPlugin.takePicture();
                     setState(() {
                       _currentCapturedImage = image;
                     });
@@ -244,8 +254,8 @@ class _CameraPageState extends State<CameraPage> {
             ),
             Center(
               child: SizedBox(
-                width: 250,
-                height: 250,
+                width: 180,
+                height: 180 / _cameraRatio.ratioValue,
                 child: _nativeCameraControllerIosPlugin.getCameraView(),
               ),
             ),
@@ -347,20 +357,20 @@ class CustomWillPopScope extends StatelessWidget {
   Widget build(final BuildContext context) =>
       Platform.isIOS
           ? GestureDetector(
-        onPanEnd: (final DragEndDetails details) {
-          if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
-            action();
-          }
-        },
-        child: PopScope(canPop: false, child: child),
-      )
+            onPanEnd: (final DragEndDetails details) {
+              if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+                action();
+              }
+            },
+            child: PopScope(canPop: false, child: child),
+          )
           : PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (final bool didPop, final Object? result) {
-          if (onWillPop) {
-            action();
-          }
-        },
-        child: child,
-      );
+            canPop: false,
+            onPopInvokedWithResult: (final bool didPop, final Object? result) {
+              if (onWillPop) {
+                action();
+              }
+            },
+            child: child,
+          );
 }
