@@ -3,7 +3,7 @@ name: Melos CI
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   melos-checks:
