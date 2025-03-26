@@ -193,7 +193,7 @@ public class NativeCameraControllerAndroidPlugin implements FlutterPlugin, Activ
             }
 
             @Override
-            public void initialize(@NonNull CameraApiInterface.FlashState flashState, @NonNull Double flashTorchLevel, @NonNull CameraApiInterface.VoidResult result) {
+            public void initialize(@NonNull CameraApiInterface.CameraMode cameraMode,@NonNull CameraApiInterface.CameraRatio cameraRatio, @NonNull CameraApiInterface.FlashState flashState, @NonNull Double flashTorchLevel, @NonNull CameraApiInterface.VoidResult result) {
                 Log.d(TAG, "Initializing camera scan model");
                 cameraScanModel = new CameraScanModel(activity, flashState);
                 if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {

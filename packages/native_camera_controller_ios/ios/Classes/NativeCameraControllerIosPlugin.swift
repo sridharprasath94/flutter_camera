@@ -77,7 +77,7 @@ class FLNativeView: UIView, FlutterPlatformView {
 
 
 class CameraApiImplementation: CameraApi {
-    func initialize(flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, any Error>) -> Void) {
+    func initialize(cameraMode: CameraMode,cameraRatio: CameraRatio, flashState: FlashState, flashTorchLevel: Double, completion: @escaping (Result<Void, any Error>) -> Void) {
         print("Initialisng camera api")
         CameraSession.shared.initializeCameraHandler(flashState: flashState, flashTorchLevel: flashTorchLevel)
         let cameraListener = CameraImageListener(binaryMessenger: self.registrar.messenger())
