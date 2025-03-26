@@ -92,6 +92,7 @@ class _CameraPageState extends State<CameraPage> {
   Uint8List? _currentCapturedImage;
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
+  final CameraRatio _cameraRatio = CameraRatio.ratio3X4;
 
   @override
   void initState() {
@@ -134,7 +135,7 @@ class _CameraPageState extends State<CameraPage> {
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerAndroidPlugin.initialize(
       CameraType.cameraPreview,
-      CameraRatio.ratio1X1,
+      _cameraRatio,
       FlashState.enabled,
       0.5,
     );
@@ -260,8 +261,8 @@ class _CameraPageState extends State<CameraPage> {
             ),
             Center(
               child: SizedBox(
-                width: 250,
-                height: 250,
+                width: 180,
+                height: 180 / _cameraRatio.ratioValue,
                 child: _nativeCameraControllerAndroidPlugin.getCameraView(),
               ),
             ),

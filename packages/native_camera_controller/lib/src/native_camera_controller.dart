@@ -53,7 +53,7 @@ class NativeCameraController {
       CameraImageListenerWrapper();
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
-  double? _aspectRatio;
+  CameraRatio? _cameraRatio;
 
   /// The [Stream] of the camera image
   Stream<Uint8List> get imageStream => _cameraImageListenerWrapper.imageStream;
@@ -70,7 +70,7 @@ class NativeCameraController {
     required final double height,
   }) => SizedBox(
     width: width,
-    height: width / (_aspectRatio ?? 1),
+    height: width / (_cameraRatio?.ratioValue ?? 1),
     child: _platform.getCameraView(),
   );
 
@@ -92,11 +92,11 @@ class NativeCameraController {
   /// Initialize the camera controller.
   Future<CameraParameters> initialize({
     final CameraType cameraType = CameraType.cameraBarcodeScan,
-    final CameraRatio cameraRatio = CameraRatio.ratio1X1,
+    final CameraRatio cameraRatio = CameraRatio.ratio3X4,
     final FlashState flashState = FlashState.enabled,
     final double flashLevel = 1,
   }) async {
-    _aspectRatio = cameraRatio == CameraRatio.ratio3X4 ? (3 / 4) : (1 / 1);
+    _cameraRatio = cameraRatio;
     try {
       await _platform.initialize(
         cameraType,

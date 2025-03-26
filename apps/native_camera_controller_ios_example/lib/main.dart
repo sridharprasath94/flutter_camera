@@ -77,6 +77,7 @@ class _CameraPageState extends State<CameraPage> {
   double _zoomLevel = 0;
   double _minZoomLevel = 0;
   double _maxZoomLevel = 1;
+  final CameraRatio _cameraRatio = CameraRatio.ratio3X4;
 
   final NativeCameraControllerPlatform _nativeCameraControllerIosPlugin =
       NativeCameraControllerIOS();
@@ -126,8 +127,8 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _initializeCamera() async {
     await _nativeCameraControllerIosPlugin.initialize(
-      CameraType.cameraPreview,
-      CameraRatio.ratio1X1,
+      CameraType.cameraBarcodeScan,
+      _cameraRatio,
       FlashState.enabled,
       0.5,
     );
@@ -140,7 +141,10 @@ class _CameraPageState extends State<CameraPage> {
     final bool flashStatus =
         await _nativeCameraControllerIosPlugin.getFlashStatus();
 
-    CameraImageListenerWrapper.setUp( CameraType.cameraPreview,_cameraImageListenerWrapper);
+    CameraImageListenerWrapper.setUp(
+      CameraType.cameraPreview,
+      _cameraImageListenerWrapper,
+    );
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
       final Uint8List image,
     ) {
@@ -249,8 +253,8 @@ class _CameraPageState extends State<CameraPage> {
             ),
             Center(
               child: SizedBox(
-                width: 250,
-                height: 250,
+                width: 180,
+                height: 180 / _cameraRatio.ratioValue,
                 child: _nativeCameraControllerIosPlugin.getCameraView(),
               ),
             ),
