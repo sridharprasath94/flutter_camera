@@ -149,10 +149,7 @@ class _CameraPageState extends State<CameraPage> {
     final bool flashStatus =
         await _nativeCameraControllerAndroidPlugin.getFlashStatus();
 
-    CameraImageListenerWrapper.setUp(
-      _cameraType,
-      _cameraImageListenerWrapper,
-    );
+    CameraImageListenerWrapper.setUp(_cameraType, _cameraImageListenerWrapper);
     _imageSubscription = _cameraImageListenerWrapper.imageStream.listen((
       final Uint8List image,
     ) {

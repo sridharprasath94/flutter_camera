@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:native_camera_controller_ios/native_camera_controller_ios.dart';
 import 'package:native_camera_controller_platform_interface/native_camera_controller_platform_interface.dart';
 
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -36,7 +35,8 @@ void main() {
   });
 
   NativeCameraControllerIOS.registerWith();
-  final NativeCameraControllerPlatform initialPlatform = NativeCameraControllerPlatform.instance;
+  final NativeCameraControllerPlatform initialPlatform =
+      NativeCameraControllerPlatform.instance;
 
   test('$NativeCameraControllerIOS is the default instance', () {
     expect(initialPlatform, isInstanceOf<NativeCameraControllerIOS>());
