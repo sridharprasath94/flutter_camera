@@ -87,7 +87,6 @@ class _CameraPageState extends State<CameraPage> {
   double _minZoomLevel = 0;
   double _maxZoomLevel = 1;
 
-  Uint8List? _currentStreamedImage;
   Uint8List? _currentCapturedImage;
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
@@ -132,12 +131,6 @@ class _CameraPageState extends State<CameraPage> {
   Future<void> _initializeCamera() async {
     final CameraParameters cameraParameters =
         await _nativeCameraController.initialize();
-
-    _nativeCameraController.imageStream.listen((final Uint8List image) {
-      setState(() {
-        _currentStreamedImage = image;
-      });
-    });
 
     _nativeCameraController.qrCodeStream.listen((final String? qrCode) {
       if (qrCode != null) {
@@ -238,17 +231,24 @@ class _CameraPageState extends State<CameraPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                if (_currentStreamedImage != null)
-                  SizedBox(
-                    width: 150,
-                    height: 150,
-                    child: Image.memory(
-                      _currentStreamedImage!,
-                      gaplessPlayback: true,
-                    ),
-                  )
-                else
-                  const SizedBox.shrink(),
+                StreamBuilder<Uint8List>(
+                  stream: _nativeCameraController.imageStream,
+                  builder: (
+                    final BuildContext context,
+                    final AsyncSnapshot<Uint8List> snapshot,
+                  ) {
+                    final Uint8List? image = snapshot.data;
+                    if (snapshot.hasData && image != null) {
+                      return SizedBox(
+                        width: 150,
+                        height: 150,
+                        child: Image.memory(image, gaplessPlayback: true),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
                 const SizedBox(width: 20),
                 if (_currentCapturedImage != null)
                   SizedBox(
@@ -268,12 +268,6 @@ class _CameraPageState extends State<CameraPage> {
       ),
     ),
   );
-
-  void onImageAvailable(final Uint8List image) {
-    setState(() {
-      _currentStreamedImage = image;
-    });
-  }
 
   bool _isNavigatingToQR = false;
 
