@@ -15,7 +15,9 @@ class NativeCameraControllerIOS extends NativeCameraControllerPlatform {
 
   @visibleForTesting
   /// The method channel used to interact with the native platform.
-  final MethodChannel methodChannel = const MethodChannel('native_camera_controller_ios');
+  final MethodChannel methodChannel = const MethodChannel(
+    'native_camera_controller_ios',
+  );
 
   @override
   Widget getCameraView() => const UiKitView(

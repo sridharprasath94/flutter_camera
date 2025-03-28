@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -16,7 +15,9 @@ class NativeCameraControllerAndroid extends NativeCameraControllerPlatform {
 
   @visibleForTesting
   /// The method channel used to interact with the native platform.
-  final MethodChannel methodChannel = const MethodChannel('native_camera_controller_android');
+  final MethodChannel methodChannel = const MethodChannel(
+    'native_camera_controller_android',
+  );
 
   @override
   Widget getCameraView() => const AndroidView(

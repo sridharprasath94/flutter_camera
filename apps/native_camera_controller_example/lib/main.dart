@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           maintainState: false,
           builder:
               (final BuildContext context) =>
-              QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
+                  QRCodePage(qrCode: qrCode ?? 'No QR code scanned'),
         );
       } else {
         return MaterialPageRoute<Object?>(
@@ -47,19 +47,20 @@ class StartPage extends StatelessWidget {
     onWillPop: false,
     action: Platform.isAndroid ? SystemNavigator.pop : () {},
     child: Scaffold(
-      appBar:  AppBar(
+      appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Center(child: Text('Camera Controller Example')),
       ),
-      bottomNavigationBar: Platform.isAndroid ? const BottomAppBar(
-        color: Colors.transparent,
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: BackButton(
-            onPressed: SystemNavigator.pop,
-          ),
-        ),
-      ) : null,
+      bottomNavigationBar:
+          Platform.isAndroid
+              ? const BottomAppBar(
+                color: Colors.transparent,
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: BackButton(onPressed: SystemNavigator.pop),
+                ),
+              )
+              : null,
       body: Center(
         child: ElevatedButton(
           onPressed: () {
@@ -91,7 +92,7 @@ class _CameraPageState extends State<CameraPage> {
   StreamSubscription<Uint8List>? _imageSubscription;
   StreamSubscription<String?>? _qrCodeSubscription;
   final NativeCameraController _nativeCameraController =
-  NativeCameraController();
+      NativeCameraController();
 
   @override
   void initState() {
@@ -114,7 +115,7 @@ class _CameraPageState extends State<CameraPage> {
     try {
       platformVersion =
           await _nativeCameraController.getPlatformVersion() ??
-              'Unknown platform version';
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -129,8 +130,8 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> _initializeCamera() async {
-    final CameraParameters cameraParameters = await _nativeCameraController
-        .initialize();
+    final CameraParameters cameraParameters =
+        await _nativeCameraController.initialize();
 
     _nativeCameraController.imageStream.listen((final Uint8List image) {
       setState(() {
@@ -210,12 +211,12 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   onPressed: () async {
                     final Uint8List? image =
-                    await _nativeCameraController.takePicture();
+                        await _nativeCameraController.takePicture();
                     setState(() {
                       _currentCapturedImage = image;
                     });
                     await Future<Object?>.delayed(const Duration(seconds: 2));
-                    if(mounted){
+                    if (mounted) {
                       setState(() {
                         _currentCapturedImage = null;
                       });
@@ -331,20 +332,20 @@ class CustomWillPopScope extends StatelessWidget {
   Widget build(final BuildContext context) =>
       Platform.isIOS
           ? GestureDetector(
-        onPanEnd: (final DragEndDetails details) {
-          if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
-            action();
-          }
-        },
-        child: PopScope(canPop: false, child: child),
-      )
+            onPanEnd: (final DragEndDetails details) {
+              if ((details.velocity.pixelsPerSecond.dx > 0) && onWillPop) {
+                action();
+              }
+            },
+            child: PopScope(canPop: false, child: child),
+          )
           : PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (final bool didPop, final Object? result) {
-          if (onWillPop) {
-            action();
-          }
-        },
-        child: child,
-      );
+            canPop: false,
+            onPopInvokedWithResult: (final bool didPop, final Object? result) {
+              if (onWillPop) {
+                action();
+              }
+            },
+            child: child,
+          );
 }
