@@ -1,14 +1,14 @@
-# mobile_camera_controller_platform_interface
+# native_camera_controller_platform_interface
 
-[![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+A new Flutter plugin project.
 
-A common platform interface for the `mobile_camera_controller` plugin.
+## Getting Started
 
-This interface allows platform-specific implementations of the `mobile_camera_controller` plugin, as well as the plugin itself, to ensure they are supporting the same interface.
+This project is a starting point for a Flutter
+[plug-in package](https://flutter.dev/to/develop-plugins),
+a specialized package that includes platform-specific implementation code for
+Android and/or iOS.
 
-# Usage
-
-To implement a new platform-specific implementation of `mobile_camera_controller`, extend `MobileCameraControllerPlatform` with an implementation that performs the platform-specific behavior.
-
-[very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
-[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
