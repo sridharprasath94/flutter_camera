@@ -25,7 +25,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/native_camera_controller_ios/ios"
 
 SPEC CHECKSUMS:
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   native_camera_controller_ios: d4eb5d35bb12066b996cccd525328705e2fced13
   SwiftIOSCamera: 6f1e20e8dc7763064e880c555eb2c3d19627ab8b
